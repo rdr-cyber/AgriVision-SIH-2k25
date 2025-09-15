@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useTransition } from 'react';
@@ -27,6 +26,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from './ui/alert';
@@ -78,8 +78,38 @@ export function OtpForm() {
           }
 
         } else {
-           // This case handles registration flow where we don't pass user details in URL
-           router.push('/login?registered=true');
+           // Check if we have temporary user data
+           const tempUserRaw = localStorage.getItem('tempUser');
+           if (tempUserRaw) {
+             const tempUser = JSON.parse(tempUserRaw);
+             localStorage.setItem('user', JSON.stringify(tempUser));
+             localStorage.removeItem('tempUser'); // Clean up temporary data
+             
+             // Redirect based on user role
+             switch(tempUser.role) {
+               case 'admin':
+                 router.push('/admin/dashboard');
+                 break;
+               case 'qc':
+                 router.push('/qc/dashboard');
+                 break;
+               case 'manufacturer':
+                 router.push('/manufacturer/dashboard');
+                 break;
+               case 'farmer':
+                 router.push('/dashboard');
+                 break;
+               case 'consumer':
+                 router.push('/consumer/dashboard');
+                 break;
+               default:
+                 router.push('/dashboard');
+                 break;
+             }
+           } else {
+             // This case handles registration flow where we don't pass user details in URL
+             router.push('/login?registered=true');
+           }
         }
       } else {
         setError('Invalid OTP. Please try again.');
@@ -111,6 +141,10 @@ export function OtpForm() {
                       maxLength={6}
                       />
                   </FormControl>
+                  <FormDescription>
+                    Enter the 6-digit code sent to your device. It&apos;s valid
+                    for 10 minutes.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -122,6 +156,10 @@ export function OtpForm() {
                   <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
+
+            <p className="text-sm text-muted-foreground">
+              Didn&apos;t get the code? It&apos;s valid for 10 minutes.
+            </p>
 
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending ? (

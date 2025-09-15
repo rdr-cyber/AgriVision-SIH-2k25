@@ -300,6 +300,12 @@ export default function ConsumerDashboard() {
           </Card>
         </div>
       </main>
+      <footer className="py-6 md:px-8 border-t">
+        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+          <p>AgriVision Consumer Dashboard v1.0</p>
+          <p className="mt-1">Developed by Team 404 Not Found for Smart India Hackathon 2025</p>
+        </div>
+      </footer>
     </div>
   );
 }

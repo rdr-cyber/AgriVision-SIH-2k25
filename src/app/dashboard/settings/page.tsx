@@ -2,18 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { 
-  User, 
   Bell, 
-  Palette, 
-  Shield, 
-  Globe, 
-  Lock, 
-  Mail, 
-  Phone,
+  CreditCard,
   Camera,
   Save,
   Eye,
-  EyeOff
+  EyeOff,
+  Shield,
+  Mail,
+  Phone
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

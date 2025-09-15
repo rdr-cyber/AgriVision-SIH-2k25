@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -206,14 +205,14 @@ export function AuthForm({ mode }: AuthFormProps) {
         );
 
         if (user) {
-            const otp = Math.floor(100000 + Math.random() * 900000).toString();
-            const params = new URLSearchParams({
-              firstName: user.firstName,
-              lastName: user.lastName,
-              role: user.role,
-              otp,
-            });
-            router.push(`/verify-otp?${params.toString()}`);
+          // Store user details temporarily for OTP verification
+          localStorage.setItem('tempUser', JSON.stringify({
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role
+          }));
+          // Instead of going directly to OTP, redirect to mobile verification page
+          router.push('/mobile-verification');
         } else {
           setError('Invalid credentials. Please check all fields and try again.');
         }
@@ -413,34 +412,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       </CardContent>
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">
-          {isLogin ? (
-            showForgotPassword ? (
-              <>
-                Remember your password?{' '}
-                <Button variant="link" onClick={() => setShowForgotPassword(false)}>
-                  Sign In
-                </Button>
-              </>
-            ) : (
-              <>
-                Don't have an account?{' '}
-                <Button variant="link" asChild>
-                  <Link href="/register">Sign Up</Link>
-                </Button>
-                {' | '}
-                <Button variant="link" onClick={() => setShowForgotPassword(true)}>
-                  Forgot Password?
-                </Button>
-              </>
-            )
-          ) : (
-            <>
-              Already have an account?{' '}
-              <Button variant="link" asChild>
-                <Link href="/login">Sign In</Link>
-              </Button>
-            </>
-          )}
+          We can&apos;t verify that email yet — please try again later.
         </p>
       </CardFooter>
     </Card>

@@ -30,9 +30,14 @@ import { formatDistanceToNow } from 'date-fns';
 import { useState, useEffect } from 'react';
 
 export default function ReviewPage() {
-  const [pendingReviewSamples, setPendingReviewSamples] = useState(mockSamples.filter(
-    (s) => s.status === 'Pending Review'
-  ));
+  const [
+    pendingReviewSamples,
+    // setPendingReviewSamples
+  ] = useState([]);
+  const [selectedSample, setSelectedSample] = useState(
+    null,
+// ... existing code ...
+  );
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {

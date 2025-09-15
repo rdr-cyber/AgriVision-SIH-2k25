@@ -16,9 +16,7 @@ import {
 } from 'chart.js';
 import { 
   Download, 
-  Calendar, 
-  Filter, 
-  FileText,
+  MoreHorizontal,
   TrendingUp,
   Award,
   AlertTriangle
@@ -30,11 +28,35 @@ import {
   DropdownMenuContent, 
   DropdownMenuItem, 
   DropdownMenuLabel, 
-  DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
+import { Select } from '@/components/ui/select';
 import { SampleContext } from '@/context/sample-context';
-import type { HerbSample } from '@/lib/types';
+
+type SampleData = {
+  id: string;
+  name: string;
+  date: string;
+  status: "approved" | "rejected" | "pending";
+  qc_result: string;
+};
+
+type ChartData = {
+  name: string;
+  approved: number;
+  rejected: number;
+};
+
+type Kpi = {
+  title: string;
+  value: string;
+  change: string;
+  changeType: "increase" | "decrease";
+};
+
+type ReportRow = { id: string; name: string; status: string; value: number };
+type Aggregates = { total: number; average: number; count: number };
+type ReportResponse = { rows: ReportRow[]; aggregates: Aggregates };
 
 ChartJS.register(
   CategoryScale,
@@ -51,7 +73,9 @@ ChartJS.register(
 export default function ReportsPage() {
   const { samples } = useContext(SampleContext);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
-  const [chartData, setChartData] = useState<any>(null);
+  const [approvedSamples, setApprovedSamples] = useState<SampleData[]>([]);
+  const [chartData, setChartData] = useState<ChartData[]>([]);
+  const [kpis, setKpis] = useState<Kpi[]>([]);
   const [qualityData, setQualityData] = useState<any>(null);
   const [speciesData, setSpeciesData] = useState<any>(null);
   const [statusData, setStatusData] = useState<any>(null);
@@ -219,16 +243,16 @@ export default function ReportsPage() {
 
   // Calculate statistics
   const totalSubmissions = samples.length;
-  const approvedSamples = samples.filter(s => s.status === 'Approved' || s.status === 'Batched').length;
-  const rejectedSamples = samples.filter(s => s.status === 'Rejected').length;
-  const pendingSamples = samples.filter(s => s.status === 'Pending Review').length;
+  const approvedCount = samples.filter(s => s.status === 'Approved' || s.status === 'Batched').length;
+  const rejectedCount = samples.filter(s => s.status === 'Rejected').length;
+  const pendingCount = samples.filter(s => s.status === 'Pending Review').length;
   
   const avgQualityScore = samples
     .filter(s => s.aiResult?.qualityScore !== undefined)
     .reduce((sum, s) => sum + (s.aiResult?.qualityScore || 0), 0) / 
     samples.filter(s => s.aiResult?.qualityScore !== undefined).length || 0;
 
-  const approvalRate = totalSubmissions > 0 ? (approvedSamples / totalSubmissions) * 100 : 0;
+  const approvalRate = totalSubmissions > 0 ? (approvedCount / totalSubmissions) * 100 : 0;
 
   const handleExport = (format: 'pdf' | 'csv' | 'xlsx') => {
     // In a real app, this would export the report data
@@ -248,7 +272,7 @@ export default function ReportsPage() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
-                <Filter className="h-4 w-4 mr-2" />
+                <MoreHorizontal className="h-4 w-4 mr-2" />
                 {timeRange === '7d' && 'Last 7 Days'}
                 {timeRange === '30d' && 'Last 30 Days'}
                 {timeRange === '90d' && 'Last 90 Days'}
@@ -327,7 +351,7 @@ export default function ReportsPage() {
             <CardDescription>Pending Review</CardDescription>
             <CardTitle className="text-3xl flex items-center gap-2">
               <AlertTriangle className="h-6 w-6 text-amber-500" />
-              {pendingSamples}
+              {pendingCount}
             </CardTitle>
           </CardHeader>
         </Card>

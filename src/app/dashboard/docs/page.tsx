@@ -11,9 +11,7 @@ import {
   MessageCircle,
   ExternalLink,
   Leaf,
-  Zap,
-  Truck,
-  DollarSign
+  LifeBuoy
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -94,12 +92,36 @@ export default function DocumentationPage() {
     }
   ];
 
+  const features = [
+    {
+      title: 'Disease Detection',
+      description: 'AI-powered disease detection for your herb samples',
+      icon: Leaf,
+      link: '/dashboard/disease-detection'
+    },
+    {
+      title: 'Financial Services',
+      description: 'Access loans and financial tools for your business',
+      icon: LifeBuoy,
+      link: '/dashboard/financial-services'
+    },
+    {
+      title: 'Supply Chain',
+      description: 'Track your products from farm to consumer',
+      icon: Truck,
+      link: '/dashboard/supply-chain'
+    }
+  ];
+
   return (
     <div className="flex flex-col gap-6 p-6">
       <div>
         <h1 className="text-3xl font-bold">Documentation & Resources</h1>
         <p className="text-muted-foreground">
           Find guides, tutorials, and resources to help you use the Agrivision platform effectively
+        </p>
+        <p className="text-sm text-muted-foreground">
+          It&apos;s easy to get started, and you&apos;ll be up and running in no time.
         </p>
       </div>
 

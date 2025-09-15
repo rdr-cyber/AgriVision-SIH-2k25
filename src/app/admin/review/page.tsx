@@ -130,6 +130,9 @@ export default function AdminReviewPage() {
             </CardDescription>
         </CardHeader>
         <CardContent>
+            <p className="text-sm text-muted-foreground">
+  It&apos;s important to review all submissions and avoid using &quot;test&quot; data in production.
+</p>
             <Table>
             <TableHeader>
                 <TableRow>

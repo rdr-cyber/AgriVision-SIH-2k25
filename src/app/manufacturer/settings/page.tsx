@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -61,6 +60,13 @@ export default function SettingsPage() {
   const [isPending, startTransition] = useTransition();
   const [isDeleting, startDeleteTransition] = useTransition();
 
+  const form = useForm({
+    resolver: zodResolver(profileFormSchema),
+  });
+
+  const onSubmit = (values: z.infer<typeof profileFormSchema>) => {
+    console.log(values);
+  };
 
   const profileForm = useForm<z.infer<typeof profileFormSchema>>({
     resolver: zodResolver(profileFormSchema),
@@ -124,6 +130,11 @@ export default function SettingsPage() {
             Update your company's information.
           </CardDescription>
         </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            Update manufacturer&apos;s display name.
+          </p>
+        </CardContent>
         <Form {...profileForm}>
           <form onSubmit={profileForm.handleSubmit(onProfileSubmit)}>
             <CardContent className="space-y-4">

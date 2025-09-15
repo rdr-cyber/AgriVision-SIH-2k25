@@ -19,6 +19,13 @@ import { Badge } from '@/components/ui/badge';
 import { SampleContext } from '@/context/sample-context';
 import type { HerbSample } from '@/lib/types';
 
+type SeriesPoint = { label: string; value: number };
+type ChartData = {
+  weekly: SeriesPoint[];
+  monthly: SeriesPoint[];
+  yearly: SeriesPoint[];
+};
+
 ChartJS.register(
   CategoryScale,
   LinearScale,

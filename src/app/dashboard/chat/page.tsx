@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from "react";
 import { Send, User, Users, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { SampleContext } from '@/context/sample-context';
 import type { Message, User as UserType } from '@/lib/types';
 import { generateAvatarSeed } from '@/lib/utils';
 

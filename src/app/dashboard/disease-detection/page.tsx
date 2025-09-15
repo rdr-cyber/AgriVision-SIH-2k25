@@ -2,9 +2,8 @@
 
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -25,11 +24,48 @@ export default function DiseaseDetectionPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.match('image.*')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please upload an image file (JPEG, PNG, etc.)",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImage(e.target?.result as string);
+        setResult(null);
+        setError(null);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setPreview(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUpload = (files: FileList): void => {
+    const file = files[0];
     if (file) {
       if (!file.type.match('image.*')) {
         toast({
@@ -149,6 +185,10 @@ export default function DiseaseDetectionPage() {
                     <Upload className="mr-2 h-4 w-4" />
                     Select Image
                   </Button>
+                  <p className="text-xs text-gray-500">
+                    PNG, JPG, GIF up to 10MB. Ensure the image is
+                    &quot;clear&quot; and &quot;well-lit&quot;.
+                  </p>
                 </>
               )}
             </div>
@@ -304,6 +344,17 @@ export default function DiseaseDetectionPage() {
               </p>
             </div>
           </div>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Model Information</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            Models are evaluated on &quot;real-world&quot; scenarios and shouldn&apos;t be overfit.
+          </p>
         </CardContent>
       </Card>
     </div>

@@ -3,24 +3,53 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Leaf, ArrowRight } from 'lucide-react';
+import { AgriVisionLogo } from '@/components/agrivision-logo';
+import { AgriVisionLogoLarge } from '@/components/agrivision-logo-large';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const [year, setYear] = useState(new Date().getFullYear());
+  const router = useRouter();
 
   useEffect(() => {
     setYear(new Date().getFullYear());
   }, []);
 
+  const clearAllUserData = () => {
+    // Clear all user-related data from localStorage
+    const keysToRemove = [
+      'user',
+      'tempUser',
+      'agrivision-users',
+      'agrivision-samples',
+      'agrivision-chat',
+      'agrivision-notifications'
+    ];
+
+    keysToRemove.forEach(key => {
+      localStorage.removeItem(key);
+    });
+
+    // Show confirmation
+    alert('All user data has been cleared successfully!');
+    
+    // Redirect to login page
+    router.push('/login');
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="container mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center">
+      <header className="container mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <Leaf className="h-7 w-7 text-primary" />
+          <AgriVisionLogo className="h-7 w-7 text-primary" />
           <span className="text-xl font-bold tracking-tight text-foreground">
             AgriVision
           </span>
         </Link>
+        <Button onClick={clearAllUserData} variant="outline" size="sm">
+          Clear All User Data
+        </Button>
       </header>
       <main className="flex-1">
         <section className="relative py-20 md:py-32">
@@ -38,6 +67,9 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
           </div>
           <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="flex justify-center mb-6">
+              <AgriVisionLogoLarge className="h-24 w-24 text-primary" />
+            </div>
             <h1 className="text-4xl md:text-6xl font-headline font-bold text-foreground">
               Trust in Every Leaf
             </h1>
@@ -162,6 +194,7 @@ export default function Home() {
       <footer className="bg-card border-t">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-muted-foreground">
           <p>&copy; {year} AgriVision. All rights reserved.</p>
+          <p className="mt-2 text-sm">Developed by Team 404 Not Found</p>
         </div>
       </footer>
     </div>

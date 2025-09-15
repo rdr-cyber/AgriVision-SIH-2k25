@@ -8,6 +8,13 @@ import { Badge } from '@/components/ui/badge';
 import { SampleContext } from '@/context/sample-context';
 import type { HerbSample } from '@/lib/types';
 
+type NotificationPayload = {
+  id: string;
+  title: string;
+  message: string;
+  createdAt: string;
+};
+
 export default function NotificationsPage() {
   const { samples } = useContext(SampleContext);
   const [notifications, setNotifications] = useState<any[]>([]);

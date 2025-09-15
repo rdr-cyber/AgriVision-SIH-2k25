@@ -72,6 +72,11 @@ export default function ConsumerSearchPage() {
     });
   };
 
+  const onSearch = (e: React.FormEvent<HTMLFormElement>): void => {
+    e.preventDefault();
+    // Search logic would go here
+  };
+
   return (
     <div className="flex flex-col gap-6 p-6">
       <div>

@@ -1,10 +1,9 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Smartphone, 
   Download, 
   Camera, 
   Wifi, 
@@ -186,8 +185,9 @@ export default function MobileAppPage() {
                 <CardTitle>Real-time Notifications</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">
-                  Get instant updates on sample status, batch approvals, and community messages.
+                <p className="text-lg text-muted-foreground">
+                  Get real-time updates on your sample status, from collection to
+                  analysis. It&apos;s transparency at your fingertips.
                 </p>
               </CardContent>
             </Card>
@@ -245,8 +245,11 @@ export default function MobileAppPage() {
           <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
             Our support team is here to help you get the most out of AgriVision.
           </p>
+          <p className="text-sm text-muted-foreground">
+            It&apos;s optimized for mobile and doesn&apos;t require &quot;installing&quot; an app.
+          </p>
           
-          <div className="flex flex-col sm:flex-row justify-center gap-6">
+          <div className="flex flex-col sm:flex-row justify-center gap-6 mt-8">
             <Button variant="outline" size="lg">
               Contact Support
             </Button>

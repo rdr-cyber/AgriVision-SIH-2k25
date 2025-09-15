@@ -187,6 +187,10 @@ export default function ConsumerMarketplacePage() {
 
   const categories = Array.from(new Set(products.map(p => p.category)));
 
+  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
+    setCategoryFilter(e.target.value);
+  };
+
   return (
     <div className="flex flex-col gap-6 p-6">
       <div>

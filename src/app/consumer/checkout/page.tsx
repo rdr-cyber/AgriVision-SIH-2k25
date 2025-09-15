@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useCart } from '@/context/cart-context';
 import { useRouter } from 'next/navigation';
-import { PaymentService, type CardPaymentDetails } from '@/lib/payment-service';
+import { PaymentService, type CardPaymentDetails, type UPIPaymentDetails, type WalletPaymentDetails } from '@/lib/payment-service';
 import { useToast } from '@/hooks/use-toast';
 
 export default function CheckoutPage() {
@@ -45,14 +45,18 @@ export default function CheckoutPage() {
     expiryDate: '',
     cvv: '',
     cardName: '',
+    upiId: '',
+    walletType: 'paypal',
   });
+
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'card' | 'upi' | 'wallet'>('card');
 
   const handleShippingChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setShippingInfo(prev => ({ ...prev, [name]: value }));
   };
 
-  const handlePaymentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePaymentChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setPaymentInfo(prev => ({ ...prev, [name]: value }));
   };
@@ -61,34 +65,102 @@ export default function CheckoutPage() {
     setIsProcessing(true);
     
     try {
-      // Validate payment details
-      const cardPaymentDetails: CardPaymentDetails = {
-        method: 'card',
-        amount: getTotalPrice(),
-        currency: 'USD',
-        orderId: `ORD-${Date.now()}`,
-        customerEmail: 'customer@example.com',
-        customerName: shippingInfo.fullName,
-        cardNumber: paymentInfo.cardNumber,
-        expiryDate: paymentInfo.expiryDate,
-        cvv: paymentInfo.cvv,
-        cardholderName: paymentInfo.cardName,
-      };
+      let result;
       
-      const validation = PaymentService.validateCardPayment(cardPaymentDetails);
-      
-      if (!validation.isValid) {
-        toast({
-          title: "Payment Error",
-          description: validation.errors.join(', '),
-          variant: "destructive",
-        });
-        setIsProcessing(false);
-        return;
+      switch (selectedPaymentMethod) {
+        case 'card':
+          // Validate card payment details
+          const cardPaymentDetails: CardPaymentDetails = {
+            method: 'card',
+            amount: getTotalPrice(),
+            currency: 'USD',
+            orderId: `ORD-${Date.now()}`,
+            customerEmail: 'customer@example.com',
+            customerName: shippingInfo.fullName,
+            cardNumber: paymentInfo.cardNumber,
+            expiryDate: paymentInfo.expiryDate,
+            cvv: paymentInfo.cvv,
+            cardholderName: paymentInfo.cardName,
+          };
+          
+          const cardValidation = PaymentService.validateCardPayment(cardPaymentDetails);
+          
+          if (!cardValidation.isValid) {
+            toast({
+              title: "Payment Error",
+              description: cardValidation.errors.join(', '),
+              variant: "destructive",
+            });
+            setIsProcessing(false);
+            return;
+          }
+          
+          result = await PaymentService.processPayment(cardPaymentDetails);
+          break;
+          
+        case 'upi':
+          // Validate UPI payment details
+          const upiPaymentDetails: UPIPaymentDetails = {
+            method: 'upi',
+            amount: getTotalPrice(),
+            currency: 'USD',
+            orderId: `ORD-${Date.now()}`,
+            customerEmail: 'customer@example.com',
+            customerName: shippingInfo.fullName,
+            upiId: paymentInfo.upiId,
+          };
+          
+          const upiValidation = PaymentService.validateUPIPayment(upiPaymentDetails);
+          
+          if (!upiValidation.isValid) {
+            toast({
+              title: "Payment Error",
+              description: upiValidation.errors.join(', '),
+              variant: "destructive",
+            });
+            setIsProcessing(false);
+            return;
+          }
+          
+          result = await PaymentService.processPayment(upiPaymentDetails);
+          break;
+          
+        case 'wallet':
+          // Validate wallet payment details
+          const walletPaymentDetails: WalletPaymentDetails = {
+            method: 'wallet',
+            amount: getTotalPrice(),
+            currency: 'USD',
+            orderId: `ORD-${Date.now()}`,
+            customerEmail: 'customer@example.com',
+            customerName: shippingInfo.fullName,
+            walletType: paymentInfo.walletType as 'paypal' | 'apple-pay' | 'google-pay',
+          };
+          
+          const walletValidation = PaymentService.validateWalletPayment(walletPaymentDetails);
+          
+          if (!walletValidation.isValid) {
+            toast({
+              title: "Payment Error",
+              description: walletValidation.errors.join(', '),
+              variant: "destructive",
+            });
+            setIsProcessing(false);
+            return;
+          }
+          
+          result = await PaymentService.processPayment(walletPaymentDetails);
+          break;
+          
+        default:
+          toast({
+            title: "Payment Error",
+            description: "Invalid payment method selected",
+            variant: "destructive",
+          });
+          setIsProcessing(false);
+          return;
       }
-      
-      // Process payment
-      const result = await PaymentService.processPayment(cardPaymentDetails);
       
       if (result.success) {
         // In a real application, this would process the payment
@@ -297,79 +369,137 @@ export default function CheckoutPage() {
                       Payment Method
                     </h2>
                     <div className="space-y-4">
+                      {/* Credit/Debit Card Option */}
                       <div className="p-4 border rounded-lg">
                         <div className="flex items-center gap-2 mb-4">
+                          <input
+                            type="radio"
+                            id="card-payment"
+                            name="payment-method"
+                            checked={selectedPaymentMethod === 'card'}
+                            onChange={() => setSelectedPaymentMethod('card')}
+                            className="h-4 w-4"
+                          />
                           <CreditCard className="h-5 w-5" />
                           <span className="font-medium">Credit/Debit Card</span>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor="cardNumber">Card Number</Label>
-                            <Input
-                              id="cardNumber"
-                              name="cardNumber"
-                              value={paymentInfo.cardNumber}
-                              onChange={handlePaymentChange}
-                              placeholder="1234 5678 9012 3456"
-                            />
+                        
+                        {selectedPaymentMethod === 'card' && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-6">
+                            <div className="space-y-2 md:col-span-2">
+                              <Label htmlFor="cardNumber">Card Number</Label>
+                              <Input
+                                id="cardNumber"
+                                name="cardNumber"
+                                value={paymentInfo.cardNumber}
+                                onChange={handlePaymentChange}
+                                placeholder="1234 5678 9012 3456"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="expiryDate">Expiry Date</Label>
+                              <Input
+                                id="expiryDate"
+                                name="expiryDate"
+                                value={paymentInfo.expiryDate}
+                                onChange={handlePaymentChange}
+                                placeholder="MM/YY"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="cvv">CVV</Label>
+                              <Input
+                                id="cvv"
+                                name="cvv"
+                                value={paymentInfo.cvv}
+                                onChange={handlePaymentChange}
+                                placeholder="123"
+                              />
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
+                              <Label htmlFor="cardName">Name on Card</Label>
+                              <Input
+                                id="cardName"
+                                name="cardName"
+                                value={paymentInfo.cardName}
+                                onChange={handlePaymentChange}
+                                placeholder="Enter name as it appears on card"
+                              />
+                            </div>
                           </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="expiryDate">Expiry Date</Label>
-                            <Input
-                              id="expiryDate"
-                              name="expiryDate"
-                              value={paymentInfo.expiryDate}
-                              onChange={handlePaymentChange}
-                              placeholder="MM/YY"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="cvv">CVV</Label>
-                            <Input
-                              id="cvv"
-                              name="cvv"
-                              value={paymentInfo.cvv}
-                              onChange={handlePaymentChange}
-                              placeholder="123"
-                            />
-                          </div>
-                          <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor="cardName">Name on Card</Label>
-                            <Input
-                              id="cardName"
-                              name="cardName"
-                              value={paymentInfo.cardName}
-                              onChange={handlePaymentChange}
-                              placeholder="Enter name as it appears on card"
-                            />
-                          </div>
-                        </div>
+                        )}
                       </div>
                       
+                      {/* Digital Wallet Option */}
                       <div className="p-4 border rounded-lg">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 mb-4">
+                          <input
+                            type="radio"
+                            id="wallet-payment"
+                            name="payment-method"
+                            checked={selectedPaymentMethod === 'wallet'}
+                            onChange={() => setSelectedPaymentMethod('wallet')}
+                            className="h-4 w-4"
+                          />
                           <Wallet className="h-5 w-5" />
                           <span className="font-medium">Digital Wallet</span>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-2">
-                          Pay with PayPal, Apple Pay, Google Pay, or other digital wallets.
-                        </p>
-                        <Button variant="outline" className="mt-3" disabled>
-                          Pay with Digital Wallet
-                        </Button>
+                        
+                        {selectedPaymentMethod === 'wallet' && (
+                          <div className="space-y-4 ml-6">
+                            <div className="space-y-2">
+                              <Label htmlFor="walletType">Select Wallet</Label>
+                              <select
+                                id="walletType"
+                                name="walletType"
+                                value={paymentInfo.walletType}
+                                onChange={handlePaymentChange}
+                                className="w-full p-2 border rounded-md"
+                              >
+                                <option value="paypal">PayPal</option>
+                                <option value="apple-pay">Apple Pay</option>
+                                <option value="google-pay">Google Pay</option>
+                              </select>
+                            </div>
+                            <Button className="mt-2">
+                              Pay with {paymentInfo.walletType.replace('-', ' ')}
+                            </Button>
+                          </div>
+                        )}
                       </div>
                       
+                      {/* UPI Option */}
                       <div className="p-4 border rounded-lg">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 mb-4">
+                          <input
+                            type="radio"
+                            id="upi-payment"
+                            name="payment-method"
+                            checked={selectedPaymentMethod === 'upi'}
+                            onChange={() => setSelectedPaymentMethod('upi')}
+                            className="h-4 w-4"
+                          />
                           <div className="font-bold text-lg">UPI</div>
                           <span className="font-medium">Unified Payments Interface</span>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-2">
-                          Pay via UPI ID or scan QR code.
-                        </p>
-                        <Button variant="outline" className="mt-3" disabled>
-                          Pay with UPI
-                        </Button>
+                        
+                        {selectedPaymentMethod === 'upi' && (
+                          <div className="space-y-4 ml-6">
+                            <div className="space-y-2">
+                              <Label htmlFor="upiId">UPI ID</Label>
+                              <Input
+                                id="upiId"
+                                name="upiId"
+                                value={paymentInfo.upiId}
+                                onChange={handlePaymentChange}
+                                placeholder="yourname@upi"
+                              />
+                            </div>
+                            <Button className="mt-2">
+                              Pay with UPI
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

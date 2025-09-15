@@ -7,10 +7,11 @@ import {
   Plus, 
   Search, 
   Filter, 
-  Eye, 
+  // Eye, 
   QrCode,
   Calendar,
-  FileText
+  // FileText,
+  MoreHorizontal
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,12 +21,12 @@ import {
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
-  DropdownMenuLabel, 
+  // DropdownMenuLabel, 
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { SampleContext } from '@/context/sample-context';
-import type { Batch, HerbSample } from '@/lib/types';
+import type { Batch } from '@/lib/types';
 
 export default function BatchesPage() {
   const router = useRouter();

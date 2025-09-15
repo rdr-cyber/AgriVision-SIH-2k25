@@ -1,15 +1,40 @@
-
 'use client';
 
-import React, { createContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import React, { createContext, useState, useEffect, ReactNode, useCallback, useReducer } from 'react';
 import type { Message, User } from '@/lib/types';
+
+export type Notification = {
+  id: string;
+  title: string;
+  body: string;
+  createdAt: number;
+};
+
+type NotificationState = {
+  notifications: Notification[];
+};
+
+type AddNotificationAction = {
+  type: "ADD_NOTIFICATION";
+  payload: Notification;
+};
+
+type RemoveNotificationAction = {
+  type: "REMOVE_NOTIFICATION";
+  payload: {
+    id: string;
+  };
+};
+
+type NotificationAction = AddNotificationAction | RemoveNotificationAction;
 
 const NOTIFICATION_STORAGE_KEY = 'agrivision-last-read-timestamp';
 const CHAT_STORAGE_KEY = 'agrivision-global-chat';
 const USERS_STORAGE_KEY = 'agrivision-users';
 
-interface NotificationContextType {
-  notifications: Message[];
+interface NotificationContextType extends NotificationState {
+  addNotification: (notification: Notification) => void;
+  removeNotification: (id: string) => void;
   unreadCount: number;
   mentionCount: number;
   markAsRead: () => void;
@@ -18,14 +43,44 @@ interface NotificationContextType {
 
 export const NotificationContext = createContext<NotificationContextType>({
   notifications: [],
+  addNotification: () => {},
+  removeNotification: () => {},
   unreadCount: 0,
   mentionCount: 0,
   markAsRead: () => {},
   recalculateNotifications: () => {},
 });
 
-export const NotificationProvider = ({ children }: { children: ReactNode }) => {
-  const [notifications, setNotifications] = useState<Message[]>([]);
+export const NotificationProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const [state, dispatch] = useReducer(
+    (
+      state: NotificationState,
+      action: NotificationAction,
+    ): NotificationState => {
+      switch (action.type) {
+        case "ADD_NOTIFICATION":
+          return {
+            ...state,
+            notifications: [action.payload, ...state.notifications],
+          };
+        case "REMOVE_NOTIFICATION":
+          return {
+            ...state,
+            notifications: state.notifications.filter(
+              (notification) => notification.id !== action.payload.id,
+            ),
+          };
+        default:
+          return state;
+      }
+    },
+    { notifications: [] },
+  );
+
   const [unreadCount, setUnreadCount] = useState(0);
   const [mentionCount, setMentionCount] = useState(0);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -61,7 +116,6 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
   const recalculateNotifications = useCallback((messages: Message[], currentUser: User | null) => {
     if (!currentUser || !messages || messages.length === 0) {
-      setNotifications([]);
       setUnreadCount(0);
       setMentionCount(0);
       return;
@@ -73,10 +127,29 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
         return msg.text.includes(mentionString);
     });
 
-    setNotifications(newUnreadMessages.slice().reverse()); // Show most recent first
+    const newNotifications = newUnreadMessages
+      .map(msg => ({
+        id: msg.id.toString(),
+        title: "New Message",
+        body: msg.text,
+        createdAt: msg.timestamp || Date.now(),
+      }))
+      .reverse();
+
+    // Replace all notifications with new ones
+    dispatch({ type: "ADD_NOTIFICATION", payload: newNotifications[0] });
+    // Clear existing notifications first
+    state.notifications.forEach(notification => {
+      dispatch({ type: "REMOVE_NOTIFICATION", payload: { id: notification.id } });
+    });
+    // Add new notifications
+    newNotifications.forEach(notification => {
+      dispatch({ type: "ADD_NOTIFICATION", payload: notification });
+    });
+
     setUnreadCount(newUnreadMessages.length - mentions.length);
     setMentionCount(mentions.length);
-  }, [lastReadTimestamp]);
+  }, [lastReadTimestamp, state.notifications]);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && currentUser) {
@@ -100,7 +173,6 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
                     const newTimestamp = messages[messages.length - 1].id;
                     localStorage.setItem(NOTIFICATION_STORAGE_KEY, newTimestamp.toString());
                     setLastReadTimestamp(newTimestamp);
-                    setNotifications([]);
                     setUnreadCount(0);
                     setMentionCount(0);
                 }
@@ -111,8 +183,30 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const addNotification = (notification: Notification) => {
+    dispatch({
+      type: "ADD_NOTIFICATION",
+      payload: notification,
+    });
+  };
+
+  const removeNotification = (id: string) => {
+    dispatch({
+      type: "REMOVE_NOTIFICATION",
+      payload: { id },
+    });
+  };
+
   return (
-    <NotificationContext.Provider value={{ notifications, unreadCount, mentionCount, markAsRead, recalculateNotifications }}>
+    <NotificationContext.Provider value={{ 
+      ...state, 
+      addNotification, 
+      removeNotification,
+      unreadCount,
+      mentionCount,
+      markAsRead,
+      recalculateNotifications
+    }}>
       {children}
     </NotificationContext.Provider>
   );

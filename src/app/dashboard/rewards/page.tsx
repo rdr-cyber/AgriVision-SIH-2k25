@@ -12,7 +12,7 @@ import {
   CheckCircle,
   Gift,
   Users,
-  MapPin
+  Ticket
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -236,6 +236,9 @@ export default function RewardsProgramPage() {
                       {rewardsData.currentPoints >= reward.points 
                         ? 'Eligible to claim' 
                         : `${reward.points - rewardsData.currentPoints} points needed`}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      You&apos;re doing great! Keep up the good work.
                     </p>
                     <Progress 
                       value={Math.min(100, (rewardsData.currentPoints / reward.points) * 100)} 

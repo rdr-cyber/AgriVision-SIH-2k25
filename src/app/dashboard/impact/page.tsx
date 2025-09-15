@@ -1,41 +1,62 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   Leaf, 
-  TrendingUp, 
   Users, 
-  MapPin, 
-  Award, 
-  TreePine, 
-  Droplets,
-  Sun,
   Wind,
-  CloudRain
+  Droplets
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
-export default function SustainabilityImpactPage() {
-  // Mock data for impact metrics
-  const [impactData, setImpactData] = useState({
-    treesSaved: 12500,
-    waterConserved: 250000, // in liters
-    co2Reduced: 45000, // in kg
-    farmersSupported: 320,
-    communitiesImpacted: 45,
-    productsVerified: 8900
+interface ImpactData {
+  treesSaved: number;
+  waterConserved: number;
+  co2Reduced: number;
+  farmersSupported: number;
+  communitiesImpacted: number;
+  productsVerified: number;
+}
+
+interface TrendData {
+  month: string;
+  trees: number;
+  water: number;
+  co2: number;
+}
+
+const mockImpactData: ImpactData = {
+  treesSaved: 12500,
+  waterConserved: 250000,
+  co2Reduced: 45000,
+  farmersSupported: 320,
+  communitiesImpacted: 45,
+  productsVerified: 8900
+};
+
+const mockImpactTrend: TrendData[] = [
+  { month: 'Jan', trees: 800, water: 15000, co2: 3000 },
+  { month: 'Feb', trees: 950, water: 18000, co2: 3500 },
+  { month: 'Mar', trees: 1100, water: 22000, co2: 4000 },
+  { month: 'Apr', trees: 1300, water: 26000, co2: 4800 },
+  { month: 'May', trees: 1500, water: 30000, co2: 5500 },
+  { month: 'Jun', trees: 1700, water: 35000, co2: 6200 }
+];
+
+export default function ImpactPage() {
+  const [impactData, setImpactData] = useState<ImpactData | null>(null);
+  const [impactTrend, setImpactTrend] = useState<TrendData[]>([]);
+
+  // Mock data fetching
+  useState(() => {
+    setImpactData(mockImpactData);
+    setImpactTrend(mockImpactTrend);
   });
 
-  // Mock data for environmental impact over time
-  const [impactTrend, setImpactTrend] = useState([
-    { month: 'Jan', trees: 800, water: 15000, co2: 3000 },
-    { month: 'Feb', trees: 950, water: 18000, co2: 3500 },
-    { month: 'Mar', trees: 1100, water: 22000, co2: 4000 },
-    { month: 'Apr', trees: 1300, water: 26000, co2: 4800 },
-    { month: 'May', trees: 1500, water: 30000, co2: 5500 },
-    { month: 'Jun', trees: 1700, water: 35000, co2: 6200 }
-  ]);
+  if (!impactData) {
+    return <div>Loading...</div>;
+  }
 
   // Mock data for featured sustainable farms
   const sustainableFarms = [
@@ -77,7 +98,7 @@ export default function SustainabilityImpactPage() {
       id: 2,
       name: 'Fair Trade Certified',
       awarded: 89,
-      icon: Award
+      icon: Leaf
     },
     {
       id: 3,

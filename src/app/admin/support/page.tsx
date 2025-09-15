@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef, useContext } from 'react';
@@ -94,7 +93,7 @@ export default function SupportPage() {
     }
   }, [messages, isClient, currentUser, recalculateNotifications]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     if (newMessage.trim() === '' || !isClient || !currentUser) return;
 
@@ -169,7 +168,7 @@ export default function SupportPage() {
       </CardContent>
       <CardFooter className="border-t p-4">
         <form
-          onSubmit={handleSendMessage}
+          onSubmit={handleSubmit}
           className="flex w-full items-center space-x-2"
         >
           <MentionInput
@@ -180,7 +179,7 @@ export default function SupportPage() {
                  const popoverOpen = document.querySelector('[data-radix-popper-content-wrapper]');
                  if (!popoverOpen) {
                     e.preventDefault();
-                    handleSendMessage(e);
+                    handleSubmit(e as any);
                  }
               }
             }}

@@ -6,11 +6,7 @@ import Image from 'next/image';
 import { 
   Search, 
   Filter, 
-  Eye, 
-  ChevronDown, 
-  Calendar,
-  MapPin,
-  FileText
+  MoreHorizontal
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,7 +22,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { SampleContext } from '@/context/sample-context';
 import type { HerbSample, HerbSampleStatus } from '@/lib/types';
-import { cn } from '@/lib/utils';
 
 export default function CollectionsPage() {
   const router = useRouter();

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -64,12 +63,22 @@ const passwordFormSchema = z
     path: ['confirmPassword'],
   });
 
+const formSchema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().optional(),
+});
+
 export default function SettingsPage() {
   const { toast } = useToast();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isDeleting, startDeleteTransition] = useTransition();
 
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+  });
 
   const profileForm = useForm<z.infer<typeof profileFormSchema>>({
     resolver: zodResolver(profileFormSchema),
@@ -96,6 +105,10 @@ export default function SettingsPage() {
       confirmPassword: '',
     },
   });
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    console.log(values);
+  };
 
   const onProfileSubmit = (values: z.infer<typeof profileFormSchema>) => {
     startTransition(async () => {
@@ -180,6 +193,9 @@ export default function SettingsPage() {
                         <Input placeholder="Smith" {...field} />
                       </FormControl>
                       <FormMessage />
+                      <p className="text-sm text-muted-foreground">
+                        This is your Quality Control lab&apos;s display name.
+                      </p>
                     </FormItem>
                   )}
                 />
@@ -204,8 +220,12 @@ export default function SettingsPage() {
                   <FormItem>
                     <FormLabel className="flex items-center gap-2"><Phone/>Phone Number (Optional)</FormLabel>
                     <FormControl>
-                      <Input type="tel" placeholder="+1 (555) 123-4567" {...field} />
+                      <Input placeholder="Enter your phone number" {...field} />
                     </FormControl>
+                    <FormDescription>
+                      A phone number for &quot;urgent&quot; notifications or
+                      &quot;two-factor&quot; authentication.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -264,6 +284,9 @@ export default function SettingsPage() {
                             Upload your QC certification document (e.g., PDF, JPG).
                         </FormDescription>
                         <FormMessage />
+                        <p className="text-sm text-muted-foreground">
+  It&apos;s important to calibrate sensors &quot;regularly&quot; for accurate results.
+</p>
                         </FormItem>
                     )}
                 />
@@ -312,6 +335,9 @@ export default function SettingsPage() {
                       <Input type="password" {...field} />
                     </FormControl>
                     <FormMessage />
+                    <p className="text-sm text-muted-foreground">
+  Please avoid using &quot;smart quotes&quot; in identifiers — use plain ASCII.
+</p>
                   </FormItem>
                 )}
               />

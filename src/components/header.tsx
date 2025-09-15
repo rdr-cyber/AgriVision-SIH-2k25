@@ -1,29 +1,34 @@
-
 'use client';
 
-import { useState, useEffect, useContext } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { Bell, Search } from 'lucide-react';
-
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { SidebarTrigger } from '@/components/ui/sidebar';
 import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState, useEffect, useContext } from 'react';
 import { NotificationContext } from '@/context/notification-context';
-import type { Message, User } from '@/lib/types';
-
-
-const USERS_STORAGE_KEY = 'agrivision-users';
+import { 
+  Bell, 
+  Search, 
+  User, 
+  LogOut, 
+  Settings,
+  Home,
+  Trash2
+} from 'lucide-react';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { 
+  Popover, 
+  PopoverContent, 
+  PopoverTrigger 
+} from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { AgriVisionLogo } from '@/components/agrivision-logo';
 
 export function Header() {
   const [user, setUser] = useState<{firstName: string, lastName: string} | null>(null);
@@ -76,11 +81,11 @@ export function Header() {
     }
   }
   
-  const getNotificationMessage = (notification: Message) => {
-      if (user && notification.text.includes(`@[${user.firstName} ${user.lastName}`)) {
-          return `You were mentioned by ${notification.senderName}`;
+  const getNotificationMessage = (notification: any) => {
+      if (user && notification.body.includes(`@[${user.firstName} ${user.lastName}`)) {
+          return `You were mentioned`;
       }
-      return `New message from ${notification.senderName}`;
+      return notification.title;
   }
 
   const getSupportPageHref = () => {
@@ -91,80 +96,165 @@ export function Header() {
     return '/dashboard/support';
   }
 
+  const clearAllUserData = () => {
+    // Clear all user-related data from localStorage
+    const keysToRemove = [
+      'user',
+      'tempUser',
+      'agrivision-users',
+      'agrivision-samples',
+      'agrivision-chat',
+      'agrivision-notifications'
+    ];
+
+    keysToRemove.forEach(key => {
+      localStorage.removeItem(key);
+    });
+
+    // Show confirmation
+    alert('All user data has been cleared successfully!');
+    
+    // Redirect to login page
+    router.push('/login');
+  };
+
   return (
-    <header className="flex h-14 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6">
-      <SidebarTrigger className="shrink-0 md:hidden" />
-      <div className="w-full flex-1">
-        <form onSubmit={handleSearch}>
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder={isAdmin ? "Search collections, users, batches..." : "Search your collections..."}
-              className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+    <header className="border-b bg-background">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="flex items-center gap-6">
+          <Link href={isAdmin ? "/admin/dashboard" : "/dashboard"} className="flex items-center gap-2">
+            <AgriVisionLogo className="h-7 w-7 text-primary" />
+            <span className="text-xl font-bold tracking-tight">AgriVision</span>
+          </Link>
+          
+          {!pathname.startsWith('/login') && !pathname.startsWith('/register') && (
+            <nav className="hidden md:flex items-center gap-4">
+              <Link 
+                href={isAdmin ? "/admin/dashboard" : "/dashboard"} 
+                className={`text-sm font-medium transition-colors hover:text-primary ${pathname === '/' || pathname === '/dashboard' || pathname === '/admin/dashboard' ? 'text-primary' : 'text-muted-foreground'}`}
+              >
+                <Home className="h-4 w-4 inline mr-1" />
+                Dashboard
+              </Link>
+              <Link 
+                href={getSupportPageHref()} 
+                className={`text-sm font-medium transition-colors hover:text-primary ${pathname.includes('/support') ? 'text-primary' : 'text-muted-foreground'}`}
+              >
+                Support
+              </Link>
+            </nav>
+          )}
+        </div>
+        
+        {!pathname.startsWith('/login') && !pathname.startsWith('/register') && (
+          <div className="flex items-center gap-2">
+            <form onSubmit={handleSearch} className="hidden md:flex items-center">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search collections..."
+                  className="w-64 pl-8"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            </form>
+            
+            <Popover onOpenChange={handleOpenChange}>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative">
+                  <Bell className="h-5 w-5" />
+                  {totalNotifications > 0 && (
+                    <span className="absolute top-0 right-0 flex h-4 w-4">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-4 w-4 bg-primary text-[10px] text-primary-foreground items-center justify-center">
+                        {totalNotifications > 9 ? '9+' : totalNotifications}
+                      </span>
+                    </span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-0" align="end">
+                <div className="max-h-96 overflow-y-auto">
+                  {notifications.length > 0 ? (
+                    <>
+                      <div className="p-3 border-b">
+                        <h4 className="font-medium">Notifications</h4>
+                      </div>
+                      <div className="divide-y">
+                        {notifications.slice(0, 5).map((notification) => (
+                          <div key={notification.id} className="p-3 hover:bg-muted">
+                            <p className="text-sm font-medium">{getNotificationMessage(notification)}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{notification.body}</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {new Date(notification.createdAt).toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="p-6 text-center text-muted-foreground">
+                      No notifications
+                    </div>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
+            
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full">
+                    <div className="bg-primary text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center">
+                      {getInitials(user.firstName, user.lastName)}
+                    </div>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {user.firstName} {user.lastName}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.firstName.toLowerCase()}.{user.lastName.toLowerCase()}@agrivision.co
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/settings" className="cursor-pointer">
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={clearAllUserData} className="cursor-pointer text-red-600">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    <span>Clear All User Data</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link href="/login">
+                <Button variant="ghost">
+                  <User className="mr-2 h-4 w-4" />
+                  Login
+                </Button>
+              </Link>
+            )}
           </div>
-        </form>
+        )}
       </div>
-       <DropdownMenu onOpenChange={handleOpenChange}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="relative rounded-full">
-            <Bell className="h-5 w-5" />
-            {totalNotifications > 0 && (
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0">{totalNotifications}</Badge>
-            )}
-            {mentionCount > 0 && (
-                 <Badge variant="destructive" className="absolute top-5 -right-2 text-xs h-5 w-5 justify-center p-0">@{mentionCount}</Badge>
-            )}
-            <span className="sr-only">Toggle notifications</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-[350px]">
-           <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-           <DropdownMenuSeparator/>
-           {notifications.length > 0 ? (
-                notifications.map(notif => (
-                     <DropdownMenuItem key={notif.id} asChild>
-                        <Link href={getSupportPageHref()} className="flex flex-col items-start">
-                            <span className="font-semibold">{getNotificationMessage(notif)}</span>
-                            <span className="text-xs text-muted-foreground truncate max-w-full">"{notif.text}"</span>
-                        </Link>
-                   </DropdownMenuItem>
-                ))
-           ) : (
-                <DropdownMenuItem disabled>No new notifications</DropdownMenuItem>
-           )}
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="secondary" size="icon" className="rounded-full">
-            <Avatar>
-              <AvatarImage src={`https://picsum.photos/seed/${user?.firstName}/40/40`} />
-              <AvatarFallback>
-                {user ? getInitials(user.firstName, user.lastName) : 'U'}
-              </AvatarFallback>
-            </Avatar>
-            <span className="sr-only">Toggle user menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>{user ? `${user.firstName} ${user.lastName}` : 'User'}</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link href={isAdmin ? '/admin/settings' : (pathname.startsWith('/qc') ? '/qc/settings' : pathname.startsWith('/manufacturer') ? '/manufacturer/settings' : pathname.startsWith('/consumer') ? '/consumer/settings' : '/dashboard/settings')}>Settings</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-             <Link href={getSupportPageHref()}>Support</Link>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </header>
   );
 }
-
-    

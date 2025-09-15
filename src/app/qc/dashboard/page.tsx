@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -40,6 +39,14 @@ type User = {
   role: string;
 };
 
+type HerbSample = {
+  id: string;
+  status: string;
+  qcReview?: {
+    agentId: string;
+    timestamp: string;
+  };
+};
 
 const mockQcActivity = [
     { id: 1, action: 'Approved', target: 'HC-005', timestamp: new Date(new Date().setDate(new Date().getDate() - 1))},
@@ -47,7 +54,14 @@ const mockQcActivity = [
     { id: 3, action: 'Approved', target: 'HC-001', timestamp: new Date(new Date().setHours(new Date().getHours() - 8))},
 ]
 
-export default function QCDashboardPage() {
+export default function QualityControlDashboard() {
+  const [
+    pendingSamples,
+    // qcSamples
+  ] = useState<HerbSample[]>([]);
+  const [selectedSample, setSelectedSample] = useState<HerbSample | null>(
+    null,
+  );
   const [user, setUser] = useState<User | null>(null);
   const { samples } = useContext(SampleContext);
   const [isClient, setIsClient] = useState(false);
@@ -194,5 +208,3 @@ export default function QCDashboardPage() {
     </div>
   );
 }
-
-    

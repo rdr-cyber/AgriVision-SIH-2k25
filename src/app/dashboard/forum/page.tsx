@@ -26,6 +26,7 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Post } from '@/lib/types';
 
 // Mock data for forum posts
 const forumPosts = [

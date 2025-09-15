@@ -1,6 +1,7 @@
 
 'use client';
 import { MoreHorizontal, UserPlus, Check, X, UserCog, Loader2 } from 'lucide-react';
+import { AuthManager } from '@/lib/auth';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -230,6 +231,19 @@ export default function AdminUsersPage() {
   }
   
   const handleRoleChange = (userId: string, newRole: Role) => {
+      // Get current user role for EoP validation
+      const currentUserRole = AuthManager.getUserRole();
+      
+      // Validate role change to prevent escalation of privilege
+      if (currentUserRole && !AuthManager.validateRoleChange(currentUserRole, newRole)) {
+          toast({
+              title: 'Permission Denied',
+              description: 'You do not have permission to assign this role.',
+              variant: 'destructive',
+          });
+          return;
+      }
+      
       const newUsers = users.map(u => u.id === userId ? { ...u, role: newRole } : u);
       updateUserInStorage(newUsers);
       const user = users.find(u => u.id === userId);

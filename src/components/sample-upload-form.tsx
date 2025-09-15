@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useTransition, useEffect, useContext } from 'react';
@@ -9,7 +8,7 @@ import {
   Loader2,
   CheckCircle,
   AlertTriangle,
-  FileImage,
+  // FileImage,
   MapPin,
   FileText,
   Weight,
@@ -43,7 +42,7 @@ import { Textarea } from './ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { SampleContext } from '@/context/sample-context';
 import type { HerbSample, User } from '@/lib/types';
-import { PlaceHolderImages } from '@/lib/mock-data';
+// import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = [

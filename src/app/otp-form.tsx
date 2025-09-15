@@ -44,6 +44,9 @@ export function OtpForm() {
   const simulatedOtp = searchParams.get('otp');
   const contact = searchParams.get('contact');
   const method = searchParams.get('method');
+  const firstName = searchParams.get('firstName');
+  const lastName = searchParams.get('lastName');
+  const role = searchParams.get('role');
 
   const form = useForm<z.infer<typeof otpSchema>>({
     resolver: zodResolver(otpSchema),
@@ -58,10 +61,8 @@ export function OtpForm() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       if (values.otp === simulatedOtp) {
         // Store user details in localStorage
-        const firstName = searchParams.get('firstName');
-        const lastName = searchParams.get('lastName');
-        const role = searchParams.get('role');
         if (firstName && lastName && role) {
+          // Original flow from login
           localStorage.setItem('user', JSON.stringify({ firstName, lastName, role }));
           
           switch(role) {
@@ -74,19 +75,62 @@ export function OtpForm() {
             case 'manufacturer':
               router.push('/manufacturer/dashboard');
               break;
+            case 'farmer':
+              router.push('/dashboard');
+              break;
+            case 'consumer':
+              router.push('/consumer/dashboard');
+              break;
             default:
               router.push('/dashboard');
               break;
           }
-
         } else {
-           // This case handles registration flow where we don't pass user details in URL
-           router.push('/login?registered=true');
+          // Check if we have temporary user data
+          const tempUserRaw = localStorage.getItem('tempUser');
+          if (tempUserRaw) {
+            const tempUser = JSON.parse(tempUserRaw);
+            localStorage.setItem('user', JSON.stringify(tempUser));
+            localStorage.removeItem('tempUser'); // Clean up temporary data
+            
+            // Redirect based on user role
+            switch(tempUser.role) {
+              case 'admin':
+                router.push('/admin/dashboard');
+                break;
+              case 'qc':
+                router.push('/qc/dashboard');
+                break;
+              case 'manufacturer':
+                router.push('/manufacturer/dashboard');
+                break;
+              case 'farmer':
+                router.push('/dashboard');
+                break;
+              case 'consumer':
+                router.push('/consumer/dashboard');
+                break;
+              default:
+                router.push('/dashboard');
+                break;
+            }
+          } else {
+            // New flow from mobile verification
+            // For demo purposes, redirect to consumer dashboard
+            // In a real app, you would determine the user's role
+            router.push('/consumer/dashboard');
+          }
         }
       } else {
         setError('Invalid OTP. Please try again.');
       }
     });
+  };
+
+  const handleResend = () => {
+    // In a real app, you would resend the OTP
+    // For demo, we'll just show an alert
+    alert(`OTP resent to ${contact || 'your email'}`);
   };
 
   return (
@@ -99,10 +143,20 @@ export function OtpForm() {
               <Smartphone className="mr-2 h-4 w-4" />
               SMS code sent to {contact}
             </>
-          ) : (
+          ) : contact ? (
             <>
               <Mail className="mr-2 h-4 w-4" />
-              Verification code sent to {contact || 'your email'}
+              Verification code sent to {contact}
+            </>
+          ) : firstName && lastName ? (
+            <>
+              <Mail className="mr-2 h-4 w-4" />
+              Verification code sent to your email
+            </>
+          ) : (
+            <>
+              <KeyRound className="mr-2 h-4 w-4" />
+              Enter verification code
             </>
           )}
         </CardDescription>
@@ -145,8 +199,8 @@ export function OtpForm() {
             </Button>
             
             <div className="text-center text-sm text-muted-foreground">
-              <p>Didn't receive the code?</p>
-              <Button variant="link" className="p-0 h-auto">
+              <p>Didn&apos;t receive a code? Check your spam folder or request again.</p>
+              <Button variant="link" className="p-0 h-auto" onClick={handleResend}>
                 Resend Code
               </Button>
             </div>

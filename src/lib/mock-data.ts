@@ -1,7 +1,4 @@
-
 import type { HerbSample, Batch, ImagePlaceholder } from './types';
-
-const now = new Date();
 
 export const PlaceHolderImages: ImagePlaceholder[] = [
     {

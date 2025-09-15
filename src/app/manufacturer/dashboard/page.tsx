@@ -1,16 +1,8 @@
-
 'use client';
 import {
   Activity,
-  ArrowUpRight,
-  CheckCircle2,
-  DollarSign,
+  CreditCard,
   FlaskConical,
-  List,
-  UploadCloud,
-  XCircle,
-  Users,
-  Shield,
   Boxes,
   Link as LinkIcon,
   PackagePlus,
@@ -21,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -131,5 +122,3 @@ export default function ManufacturerDashboardPage() {
     </div>
   );
 }
-
-    

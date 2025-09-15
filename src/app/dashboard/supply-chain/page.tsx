@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,14 +8,13 @@ import {
   MapPin, 
   Truck, 
   Package, 
-  Calendar, 
   Thermometer, 
   Droplets,
-  Leaf,
   QrCode,
   CheckCircle,
   AlertCircle,
-  Clock
+  Clock,
+  ChevronRight
 } from 'lucide-react';
 import { 
   Table, 

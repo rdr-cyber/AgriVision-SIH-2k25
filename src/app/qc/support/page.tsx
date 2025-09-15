@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef, useContext } from 'react';
@@ -28,6 +27,8 @@ import { ChatMessage } from '@/components/chat-message';
 import { useToast } from '@/hooks/use-toast';
 import { NotificationContext } from '@/context/notification-context';
 import type { Message, User } from '@/lib/types';
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 
 const CHAT_STORAGE_KEY = 'agrivision-global-chat';
@@ -42,6 +43,8 @@ export default function SupportPage() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { recalculateNotifications } = useContext(NotificationContext);
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
 
   // Load current user and all users
   useEffect(() => {
@@ -93,7 +96,7 @@ export default function SupportPage() {
     }
   }, [messages, isClient, currentUser, recalculateNotifications]);
   
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     if (newMessage.trim() === '' || !isClient || !currentUser) return;
 
@@ -117,6 +120,12 @@ export default function SupportPage() {
   const handleClearHistory = () => {
     // Non-admins can only clear their view, not the global history
     setMessages([]);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      console.log(e.target.files[0]);
+    }
   };
 
   return (
@@ -168,7 +177,7 @@ export default function SupportPage() {
       </CardContent>
       <CardFooter className="border-t p-4">
         <form
-          onSubmit={handleSendMessage}
+          onSubmit={handleSubmit}
           className="flex w-full items-center space-x-2"
         >
           <MentionInput
@@ -179,7 +188,7 @@ export default function SupportPage() {
                  const popoverOpen = document.querySelector('[data-radix-popper-content-wrapper]');
                  if (!popoverOpen) {
                     e.preventDefault();
-                    handleSendMessage(e);
+                    handleSubmit(e as any);
                  }
               }
             }}

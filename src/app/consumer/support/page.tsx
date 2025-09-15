@@ -209,6 +209,15 @@ export default function ConsumerSupportPage() {
                   <p className="text-sm text-muted-foreground">Available 9AM-6PM IST</p>
                 </div>
               </div>
+              <div className="flex items-start gap-3">
+                <User className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <h3 className="font-medium">Account Assistance</h3>
+                  <p className="text-sm text-muted-foreground">
+                    We're here to help. Please don't share any "sensitive" information.
+                  </p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>

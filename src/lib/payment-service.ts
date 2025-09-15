@@ -36,6 +36,78 @@ export type PaymentResult = {
   errorMessage?: string;
 };
 
+export type Transaction = {
+  id: string;
+  amount: number;
+  status: 'completed' | 'pending' | 'failed';
+  type: 'p2p';
+  timestamp: string;
+  sender: string;
+  receiver: string;
+};
+
+class P2PTransactionService {
+  private transactions: Transaction[] = [];
+  private static instance: P2PTransactionService;
+
+  private constructor() {
+    // Mock data
+    this.transactions = [
+      {
+        id: "1",
+        amount: 100,
+        status: "completed",
+        type: "p2p",
+        timestamp: "2023-01-15T10:30:00Z",
+        sender: "user123",
+        receiver: "user456",
+      },
+      {
+        id: "2",
+        amount: 50,
+        status: "pending",
+        type: "p2p",
+        timestamp: "2023-01-16T12:00:00Z",
+        sender: "user789",
+        receiver: "user123",
+      },
+    ];
+  }
+
+  public static getInstance(): P2PTransactionService {
+    if (!P2PTransactionService.instance) {
+      P2PTransactionService.instance = new P2PTransactionService();
+    }
+    return P2PTransactionService.instance;
+  }
+
+  async getTransactions(userId: string): Promise<Transaction[]> {
+    // In a real app, you'd filter transactions by userId
+    console.log(`Fetching transactions for ${userId}`);
+    return Promise.resolve(this.transactions);
+  }
+
+  async createTransaction(
+    sender: string,
+    receiver: string,
+    amount: number,
+  ): Promise<Transaction> {
+    const newTransaction: Transaction = {
+      id: (this.transactions.length + 1).toString(),
+      amount,
+      status: "completed",
+      type: "p2p",
+      timestamp: new Date().toISOString(),
+      sender,
+      receiver,
+    };
+    this.transactions.push(newTransaction);
+    return Promise.resolve(newTransaction);
+  }
+}
+
+export default P2PTransactionService;
+
 export class PaymentService {
   // Mock payment processing
   static async processPayment(paymentDetails: PaymentDetails): Promise<PaymentResult> {

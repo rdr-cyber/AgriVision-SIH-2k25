@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef, useContext } from 'react';
@@ -28,6 +27,8 @@ import { ChatMessage } from '@/components/chat-message';
 import { useToast } from '@/hooks/use-toast';
 import { NotificationContext } from '@/context/notification-context';
 import type { Message, User } from '@/lib/types';
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/hooks/use-toast";
 
 const CHAT_STORAGE_KEY = 'agrivision-global-chat';
 const USERS_STORAGE_KEY = 'agrivision-users';
@@ -41,6 +42,19 @@ export default function SupportPage() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { recalculateNotifications } = useContext(NotificationContext);
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // toast({
+    //   title: "Message Sent",
+    //   description: "We've received your message and will get back to you soon.",
+    // });
+    console.log("Form submitted", { subject, message });
+    setSubject("");
+    setMessage("");
+  };
 
   // Load current user and all users
   useEffect(() => {

@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -6,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
   Leaf,
   Home,
-  UploadCloud,
+  Upload,
   ClipboardList,
   History,
   Boxes,
@@ -34,7 +33,12 @@ import {
   MessageSquare,
   Award,
   Zap,
-  Truck
+  Truck,
+  CreditCard,
+  Send,
+  FileCheck,
+  AlertCircle,
+  PlusCircle
 } from 'lucide-react';
 import {
   SidebarHeader,
@@ -47,70 +51,180 @@ import {
 } from '@/components/ui/sidebar';
 import { useState, useEffect, useContext } from 'react';
 import { NotificationContext } from '@/context/notification-context';
+import { AgriVisionLogo } from '@/components/agrivision-logo';
 
 type UserRole = 'consumer' | 'farmer' | 'admin' | 'qc' | 'manufacturer' | null;
 
+type NavItem = {
+  label: string;
+  href: string;
+  icon?: React.ReactNode;
+  children?: NavItem[];
+};
+
+const consumerItems = [
+  {
+    title: "Dashboard",
+    href: "/consumer",
+    icon: Home,
+  },
+  {
+    title: "My Purchases",
+    href: "/consumer/purchases",
+    icon: Package,
+  },
+  {
+    title: "Cart",
+    href: "/consumer/cart",
+    icon: ShoppingCart,
+  },
+  {
+    title: "Checkout",
+    href: "/consumer/checkout",
+    icon: CreditCard,
+  },
+  {
+    title: "Payment History",
+    href: "/dashboard/payment-history",
+    icon: History,
+  },
+  {
+    title: "Send Payment",
+    href: "/dashboard/p2p-payment",
+    icon: Send,
+  },
+];
+
+const farmerItems = [
+  {
+    title: "Dashboard",
+    href: "/dashboard",
+    icon: Home,
+  },
+  {
+    title: "Upload Samples",
+    href: "/dashboard/upload",
+    icon: Upload,
+  },
+  {
+    title: "My Samples",
+    href: "/dashboard/samples",
+    icon: FileText,
+  },
+  {
+    title: "Payment History",
+    href: "/dashboard/payment-history",
+    icon: History,
+  },
+  {
+    title: "Send Payment",
+    href: "/dashboard/p2p-payment",
+    icon: Send,
+  },
+];
+
+const qcItems = [
+  {
+    title: "Dashboard",
+    href: "/qc",
+    icon: Home,
+  },
+  {
+    title: "Review Samples",
+    href: "/qc/review",
+    icon: FileCheck,
+  },
+  {
+    title: "Appeals",
+    href: "/qc/appeals",
+    icon: AlertCircle,
+  },
+  {
+    title: "Payment History",
+    href: "/dashboard/payment-history",
+    icon: History,
+  },
+  {
+    title: "Send Payment",
+    href: "/dashboard/p2p-payment",
+    icon: Send,
+  },
+];
+
+const manufacturerItems = [
+  {
+    title: "Dashboard",
+    href: "/manufacturer",
+    icon: Home,
+  },
+  {
+    title: "My Batches",
+    href: "/manufacturer/batches",
+    icon: Package,
+  },
+  {
+    title: "Create Batch",
+    href: "/manufacturer/create-batch",
+    icon: PlusCircle,
+  },
+  {
+    title: "Payment History",
+    href: "/dashboard/payment-history",
+    icon: History,
+  },
+  {
+    title: "Send Payment",
+    href: "/dashboard/p2p-payment",
+    icon: Send,
+  },
+];
+
+const adminItems = [
+  {
+    title: "Dashboard",
+    href: "/admin",
+    icon: Home,
+  },
+  {
+    title: "User Management",
+    href: "/admin/users",
+    icon: Users,
+  },
+  {
+    title: "Blockchain",
+    href: "/admin/blockchain",
+    icon: Link,
+  },
+  {
+    title: "System Logs",
+    href: "/admin/logs",
+    icon: FileText,
+  },
+  {
+    title: "Payment History",
+    href: "/dashboard/payment-history",
+    icon: History,
+  },
+  {
+    title: "Send Payment",
+    href: "/dashboard/p2p-payment",
+    icon: Send,
+  },
+];
+
+function buildMap(items: NavItem[]): Record<string, NavItem> {
+  return items.reduce<Record<string, NavItem>>((acc, cur) => {
+    acc[cur.href] = cur;
+    return acc;
+  }, {});
+}
+
 const menuItemsConfig = {
-    consumer: [
-        { href: '/consumer', label: 'Dashboard', icon: Home },
-        { href: '/consumer/search', label: 'Search Products', icon: Search },
-        { href: '/consumer/marketplace', label: 'Marketplace', icon: ShoppingCart },
-        { href: '/consumer/cart', label: 'Shopping Cart', icon: ShoppingCart },
-        { href: '/consumer/purchases', label: 'My Purchases', icon: ShoppingCart },
-        { href: '/consumer/tracking', label: 'Track Batch', icon: Eye },
-        { href: '/dashboard/forum', label: 'Community Forum', icon: MessageSquare },
-        { href: '/dashboard/impact', label: 'Sustainability Impact', icon: Leaf },
-    ],
-    farmer: [
-        { href: '/dashboard', label: 'Dashboard', icon: Home },
-        { href: '/dashboard/upload', label: 'Upload Sample', icon: UploadCloud },
-        { href: '/dashboard/collections', label: 'My Collections', icon: ClipboardList },
-        { href: '/dashboard/earnings', label: 'Earnings', icon: DollarSign },
-        { href: '/dashboard/rewards', label: 'Rewards Program', icon: Award },
-        { href: '/dashboard/chat', label: 'Team Chat', icon: MessageCircle },
-        { href: '/dashboard/knowledge', label: 'Knowledge Base', icon: BookOpen },
-        { href: '/dashboard/disease-detection', label: 'Disease Detection', icon: Leaf },
-        { href: '/dashboard/iot-monitoring', label: 'IoT Monitoring', icon: Zap },
-        { href: '/dashboard/financial-services', label: 'Financial Services', icon: DollarSign },
-        { href: '/dashboard/supply-chain', label: 'Supply Chain', icon: Truck },
-        { href: '/dashboard/docs', label: 'Documentation', icon: BookOpen },
-        { href: '/dashboard/forum', label: 'Community Forum', icon: MessageSquare },
-        { href: '/dashboard/impact', label: 'Sustainability Impact', icon: Leaf },
-    ],
-    admin: [
-        { href: '/admin/dashboard', label: 'Overview', icon: Home },
-        { href: '/admin/users', label: 'Users', icon: Users },
-        { href: '/admin/collections', label: 'Collections', icon: ClipboardList },
-        { href: '/admin/review', label: 'QC Review', icon: Shield },
-        { href: '/admin/batches', label: 'Batches', icon: Boxes },
-        { href: '/admin/blockchain', label: 'Blockchain', icon: Database },
-        { href: '/admin/logs', label: 'Logs', icon: FileText },
-        { href: '/admin/analytics', label: 'Analytics', icon: BarChart2 },
-        { href: '/dashboard/docs', label: 'Documentation', icon: BookOpen },
-        { href: '/dashboard/forum', label: 'Community Forum', icon: MessageSquare },
-        { href: '/dashboard/impact', label: 'Sustainability Impact', icon: Leaf },
-    ],
-    qc: [
-        { href: '/qc/dashboard', label: 'Dashboard', icon: Home },
-        { href: '/qc/collections', label: 'Collections', icon: ClipboardList },
-        { href: '/qc/appeals', label: 'Appeals', icon: ShieldAlert },
-        { href: '/qc/reports', label: 'Reports / Flags', icon: Flag },
-        { href: '/dashboard/qc-dashboard', label: 'QC Dashboard', icon: TestTube2 },
-        { href: '/dashboard/reports', label: 'Advanced Reports', icon: FileBarChart },
-        { href: '/dashboard/docs', label: 'Documentation', icon: BookOpen },
-        { href: '/dashboard/forum', label: 'Community Forum', icon: MessageSquare },
-        { href: '/dashboard/impact', label: 'Sustainability Impact', icon: Leaf },
-    ],
-    manufacturer: [
-        { href: '/manufacturer/dashboard', label: 'Dashboard', icon: Home },
-        { href: '/manufacturer/collections', label: 'Approved Collections', icon: ClipboardList },
-        { href: '/dashboard/batches', label: 'Batch Management', icon: Boxes },
-        { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart2 },
-        { href: '/dashboard/chat', label: 'Team Chat', icon: MessageCircle },
-        { href: '/dashboard/docs', label: 'Documentation', icon: BookOpen },
-        { href: '/dashboard/forum', label: 'Community Forum', icon: MessageSquare },
-        { href: '/dashboard/impact', label: 'Sustainability Impact', icon: Leaf },
-    ]
+  consumer: consumerItems,
+  farmer: farmerItems,
+  qc: qcItems,
+  manufacturer: manufacturerItems,
+  admin: adminItems,
 };
 
 export function Nav() {
@@ -162,7 +276,7 @@ export function Nav() {
       return menuItemsConfig.farmer; // Default to farmer menu
   }
 
-  const menuItems = getMenuItems();
+  const menuItems: any = getMenuItems();
   
   const getIsActive = (itemHref: string) => {
     // Exact match for dashboard home pages
@@ -187,20 +301,20 @@ export function Nav() {
           href={getDashboardLink()}
           className="flex items-center gap-2 text-lg font-semibold"
         >
-          <Leaf className="h-7 w-7 text-primary" />
+          <AgriVisionLogo className="h-7 w-7 text-primary" />
           <span className="font-headline">AgriVision</span>
         </Link>
       </SidebarHeader>
       <SidebarMenu className="flex-1 p-2">
-        {menuItems.map((item) => (
+        {menuItems.map((item: any) => (
           <SidebarMenuItem key={item.href}>
             <Link href={item.href} passHref>
               <SidebarMenuButton
                 isActive={getIsActive(item.href)}
-                tooltip={item.label}
+                tooltip={item.title}
               >
                 <item.icon />
-                <span>{item.label}</span>
+                <span>{item.title}</span>
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>
@@ -235,6 +349,10 @@ export function Nav() {
             )
         })}
       </SidebarFooter>
+      <div className="p-4 text-center text-xs text-muted-foreground border-t">
+        <p>AgriVision v1.0</p>
+        <p className="mt-1">by Team 404 Not Found</p>
+      </div>
     </nav>
   );
 }

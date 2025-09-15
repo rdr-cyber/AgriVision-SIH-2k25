@@ -5,16 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
-  DollarSign, 
-  CreditCard, 
-  PiggyBank, 
-  TrendingUp, 
-  FileText, 
-  Calendar,
-  CheckCircle,
-  AlertCircle,
-  Clock,
-  Leaf
+  ArrowUpRight,
+  Users,
+  CreditCard,
+  Activity,
 } from 'lucide-react';
 import { 
   Table, 
@@ -32,8 +26,7 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { 
-  LineChart, 
-  Line, 
+  RechartsLineChart, 
   BarChart, 
   Bar, 
   XAxis, 
@@ -117,9 +110,13 @@ const mockLoanData = [
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 export default function FinancialServicesPage() {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [timeframe, setTimeframe] = useState('1M');
   const [selectedLoan, setSelectedLoan] = useState(loanProducts[0]);
   const [selectedInsurance, setSelectedInsurance] = useState(insuranceProducts[0]);
+
+  const handleTimeframeChange = (value: string) => {
+    setTimeframe(value);
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -144,7 +141,7 @@ export default function FinancialServicesPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Loans</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">8</div>
@@ -154,7 +151,7 @@ export default function FinancialServicesPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Insurance Policies</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">5</div>
@@ -164,7 +161,7 @@ export default function FinancialServicesPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Savings Balance</CardTitle>
-            <PiggyBank className="h-4 w-4 text-muted-foreground" />
+            <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">₹45,200</div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from "react";
 import { Textarea } from '@/components/ui/textarea';
 import {
   Popover,
@@ -18,6 +18,7 @@ interface MentionInputProps {
   onKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   users: User[];
   disabled: boolean;
+  onValueChange?: (value: string) => void;
 }
 
 const getInitials = (name: string) => {
@@ -39,27 +40,27 @@ const formatRole = (role: string) => {
     }
 }
 
-
-export function MentionInput({ value, onChange, onKeyDown, users, disabled }: MentionInputProps) {
-  const [popoverOpen, setPopoverOpen] = useState(false);
-  const [mentionQuery, setMentionQuery] = useState('');
-  const [filteredUsers, setFilteredUsers] = useState<User[]>(users);
-  const [activeIndex, setActiveIndex] = useState(0);
+export default function MentionInput({
+  users,
+  onValueChange,
+}: MentionInputProps) {
+  const [value, setValue] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState<User[]>([]);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     const lastWord = value.split(/\s+/).pop() || '';
     if (lastWord.startsWith('@')) {
-      setPopoverOpen(true);
+      setShowSuggestions(true);
       const query = lastWord.substring(1).toLowerCase();
-      setMentionQuery(query);
       const filtered = users.filter(user =>
         `${user.firstName} ${user.lastName}`.toLowerCase().includes(query) ||
         user.role.toLowerCase().includes(query)
       );
-      setFilteredUsers(filtered);
-      setActiveIndex(0);
+      setSuggestions(filtered);
     } else {
-      setPopoverOpen(false);
+      setShowSuggestions(false);
     }
   }, [value, users]);
 
@@ -68,41 +69,45 @@ export function MentionInput({ value, onChange, onKeyDown, users, disabled }: Me
     const textParts = value.split(/\s+/);
     textParts.pop(); // remove the @mention part
     const newValue = `${textParts.join(' ')} @[${userString}] `;
-    onChange(newValue);
-    setPopoverOpen(false);
+    setValue(newValue);
+    if (onValueChange) {
+      onValueChange(newValue);
+    }
+    setShowSuggestions(false);
   };
   
   const handleKeyDownPopover = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (popoverOpen) {
+    if (showSuggestions) {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setActiveIndex((prev) => (prev + 1) % filteredUsers.length);
+        // setActiveIndex((prev) => (prev + 1) % filteredUsers.length);
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setActiveIndex((prev) => (prev - 1 + filteredUsers.length) % filteredUsers.length);
+        // setActiveIndex((prev) => (prev - 1 + filteredUsers.length) % filteredUsers.length);
       } else if (e.key === 'Enter' || e.key === 'Tab') {
-        if (filteredUsers.length > 0) {
-          e.preventDefault();
-          handleSelectUser(filteredUsers[activeIndex]);
-        }
+        // if (filteredUsers.length > 0) {
+        //   e.preventDefault();
+        //   handleSelectUser(filteredUsers[activeIndex]);
+        // }
       } else if (e.key === 'Escape') {
         e.preventDefault();
-        setPopoverOpen(false);
+        setShowSuggestions(false);
       }
     }
-    onKeyDown(e);
+    // onKeyDown(e);
   };
 
   return (
-    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+    <Popover open={showSuggestions} onOpenChange={setShowSuggestions}>
       <PopoverAnchor asChild>
         <Textarea
+          ref={textareaRef}
           placeholder="Type your message... use '@' to mention a user."
           className="flex-1 resize-none"
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDownPopover}
-          disabled={disabled}
+          // disabled={disabled}
         />
       </PopoverAnchor>
       <PopoverContent
@@ -111,12 +116,12 @@ export function MentionInput({ value, onChange, onKeyDown, users, disabled }: Me
       >
         <Card>
           <ScrollArea className="h-48">
-            {filteredUsers.map((user, index) => (
+            {suggestions.map((user, index) => (
               <div
                 key={user.id}
                 onClick={() => handleSelectUser(user)}
                 className={`flex items-center gap-2 p-2 cursor-pointer ${
-                  index === activeIndex ? 'bg-muted' : ''
+                  index === 0 ? 'bg-muted' : ''
                 }`}
               >
                 <Avatar className="h-8 w-8">
@@ -129,7 +134,7 @@ export function MentionInput({ value, onChange, onKeyDown, users, disabled }: Me
                 </div>
               </div>
             ))}
-            {filteredUsers.length === 0 && (
+            {suggestions.length === 0 && (
                 <div className="p-4 text-center text-sm text-muted-foreground">
                     No users found
                 </div>

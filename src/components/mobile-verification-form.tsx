@@ -73,6 +73,15 @@ export function MobileVerificationForm() {
         otp,
       });
       
+      // Get user details from temporary storage
+      const tempUserRaw = localStorage.getItem('tempUser');
+      if (tempUserRaw) {
+        const tempUser = JSON.parse(tempUserRaw);
+        params.append('firstName', tempUser.firstName);
+        params.append('lastName', tempUser.lastName);
+        params.append('role', tempUser.role);
+      }
+      
       setVerificationSent(true);
       // Redirect to OTP verification page after a short delay
       setTimeout(() => {
@@ -152,6 +161,9 @@ export function MobileVerificationForm() {
                         {...field}
                       />
                     </FormControl>
+                    <p className="text-sm text-muted-foreground">
+                      We'll text you a verification code.
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}

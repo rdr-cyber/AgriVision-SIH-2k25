@@ -11,20 +11,20 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from '@/components/ui/table';
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import {
   Dialog,
   DialogContent,
@@ -163,6 +163,9 @@ export default function AdminCollectionsPage() {
           {isClient && samples.length === 0 && (
             <div className="text-center py-12 text-muted-foreground">
               <p>No samples found in the system.</p>
+              <p className="text-sm text-muted-foreground">
+                Please ensure your collection name does not contain &quot;special&quot; characters.
+              </p>
             </div>
           )}
         </CardContent>
