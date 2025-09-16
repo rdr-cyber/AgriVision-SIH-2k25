@@ -19,7 +19,8 @@ import {
   MoreHorizontal,
   TrendingUp,
   Award,
-  AlertTriangle
+  AlertTriangle,
+  FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -42,9 +43,15 @@ type SampleData = {
 };
 
 type ChartData = {
-  name: string;
-  approved: number;
-  rejected: number;
+  labels: string[];
+  datasets: {
+    label: string;
+    data: number[];
+    borderColor?: string | string[];
+    backgroundColor?: string | string[];
+    borderWidth?: number;
+    tension?: number;
+  }[];
 };
 
 type Kpi = {
@@ -74,11 +81,11 @@ export default function ReportsPage() {
   const { samples } = useContext(SampleContext);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
   const [approvedSamples, setApprovedSamples] = useState<SampleData[]>([]);
-  const [chartData, setChartData] = useState<ChartData[]>([]);
+  const [chartData, setChartData] = useState<ChartData | null>(null);
   const [kpis, setKpis] = useState<Kpi[]>([]);
-  const [qualityData, setQualityData] = useState<any>(null);
-  const [speciesData, setSpeciesData] = useState<any>(null);
-  const [statusData, setStatusData] = useState<any>(null);
+  const [qualityData, setQualityData] = useState<ChartData | null>(null);
+  const [speciesData, setSpeciesData] = useState<ChartData | null>(null);
+  const [statusData, setStatusData] = useState<ChartData | null>(null);
 
   // Prepare chart data based on time range
   useEffect(() => {
@@ -109,7 +116,7 @@ export default function ReportsPage() {
       }, {});
 
       const dates = Object.keys(submissionsByDate);
-      const counts = Object.values(submissionsByDate);
+      const counts = Object.values(submissionsByDate).map(val => Number(val));
 
       setChartData({
         labels: dates,
@@ -172,7 +179,7 @@ export default function ReportsPage() {
       }, {});
 
       const speciesLabels = Object.keys(speciesCount);
-      const speciesValues = Object.values(speciesCount);
+      const speciesValues = Object.values(speciesCount).map(val => Number(val));
 
       if (speciesLabels.length > 0) {
         setSpeciesData({
@@ -210,7 +217,7 @@ export default function ReportsPage() {
       }, {});
 
       const statusLabels = Object.keys(statusCount);
-      const statusValues = Object.values(statusCount);
+      const statusValues = Object.values(statusCount).map(val => Number(val));
 
       if (statusLabels.length > 0) {
         setStatusData({
@@ -247,10 +254,10 @@ export default function ReportsPage() {
   const rejectedCount = samples.filter(s => s.status === 'Rejected').length;
   const pendingCount = samples.filter(s => s.status === 'Pending Review').length;
   
-  const avgQualityScore = samples
-    .filter(s => s.aiResult?.qualityScore !== undefined)
-    .reduce((sum, s) => sum + (s.aiResult?.qualityScore || 0), 0) / 
-    samples.filter(s => s.aiResult?.qualityScore !== undefined).length || 0;
+  const validQualityScores = samples.filter(s => s.aiResult?.qualityScore !== undefined);
+  const avgQualityScore = validQualityScores.length > 0 
+    ? validQualityScores.reduce((sum, s) => sum + (s.aiResult?.qualityScore || 0), 0) / validQualityScores.length
+    : 0;
 
   const approvalRate = totalSubmissions > 0 ? (approvedCount / totalSubmissions) * 100 : 0;
 

@@ -88,7 +88,7 @@ export const NotificationProvider = ({
   const [lastReadTimestamp, setLastReadTimestamp] = useState<number>(() => {
     if (typeof window === 'undefined') return Date.now();
     const saved = localStorage.getItem(NOTIFICATION_STORAGE_KEY);
-    return saved ? parseInt(saved, 10) : 0; 
+    return saved ? parseInt(saved, 10) : Date.now(); 
   });
   
   useEffect(() => {
@@ -121,7 +121,12 @@ export const NotificationProvider = ({
       return;
     };
 
-    const newUnreadMessages = messages.filter(msg => msg.id > lastReadTimestamp && msg.senderId !== currentUser.email);
+    const newUnreadMessages = messages.filter(msg => {
+      // Ensure msg.id is a number and lastReadTimestamp is also a number
+      const messageId = typeof msg.id === 'string' ? parseInt(msg.id, 10) : msg.id;
+      return messageId > lastReadTimestamp && msg.senderId !== currentUser.email;
+    });
+    
     const mentions = newUnreadMessages.filter(msg => {
         const mentionString = `@[${currentUser.firstName} ${currentUser.lastName}`;
         return msg.text.includes(mentionString);
@@ -132,12 +137,10 @@ export const NotificationProvider = ({
         id: msg.id.toString(),
         title: "New Message",
         body: msg.text,
-        createdAt: msg.timestamp || Date.now(),
+        createdAt: msg.timestamp ? (typeof msg.timestamp === 'string' ? parseInt(msg.timestamp, 10) : msg.timestamp) : Date.now(),
       }))
       .reverse();
 
-    // Replace all notifications with new ones
-    dispatch({ type: "ADD_NOTIFICATION", payload: newNotifications[0] });
     // Clear existing notifications first
     state.notifications.forEach(notification => {
       dispatch({ type: "REMOVE_NOTIFICATION", payload: { id: notification.id } });
@@ -170,7 +173,9 @@ export const NotificationProvider = ({
             try {
                 const messages: Message[] = JSON.parse(chatHistoryRaw);
                 if (messages.length > 0) {
-                    const newTimestamp = messages[messages.length - 1].id;
+                    const lastMessage = messages[messages.length - 1];
+                    // Ensure we're using a number for the timestamp
+                    const newTimestamp = typeof lastMessage.id === 'string' ? parseInt(lastMessage.id, 10) : lastMessage.id;
                     localStorage.setItem(NOTIFICATION_STORAGE_KEY, newTimestamp.toString());
                     setLastReadTimestamp(newTimestamp);
                     setUnreadCount(0);

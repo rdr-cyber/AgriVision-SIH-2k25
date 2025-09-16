@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { 
   Search, 
   Filter, 
-  MoreHorizontal
+  MoreHorizontal,
+  Calendar,
+  FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,7 +25,7 @@ import {
 import { SampleContext } from '@/context/sample-context';
 import type { HerbSample, HerbSampleStatus } from '@/lib/types';
 
-export default function CollectionsPage() {
+function CollectionsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { samples } = useContext(SampleContext);
@@ -223,61 +225,58 @@ export default function CollectionsPage() {
                 </div>
               </CardHeader>
               <CardContent className="p-4 pt-0">
-                <div className="aspect-square bg-muted rounded-md mb-3 overflow-hidden">
+                {sample.aiResult?.species && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">{sample.aiResult.species}</span>
+                  </div>
+                )}
+                <div className="aspect-square bg-muted rounded-md overflow-hidden mb-2">
                   <Image
                     src={sample.imageUrl}
                     alt={sample.aiResult?.species || 'Herb sample'}
                     width={200}
                     height={200}
-                    className="object-contain w-full h-full"
+                    className="object-cover w-full h-full"
                   />
                 </div>
-                <div className="space-y-2">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Species</p>
-                    <p className="font-medium">{sample.aiResult?.species || 'N/A'}</p>
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-muted-foreground">
+                    Quality: {sample.aiResult?.qualityScore || 'N/A'}/100
                   </div>
-                  <div className="flex justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Quality</p>
-                      <p className="font-medium">{sample.aiResult?.qualityScore || 'N/A'}/100</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Quantity</p>
-                      <p className="font-medium">{sample.quantity || 'N/A'}g</p>
-                    </div>
-                  </div>
-                  {sample.notes && (
-                    <div className="flex items-start gap-1">
-                      <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
-                      <p className="text-sm text-muted-foreground truncate">
-                        {sample.notes}
-                      </p>
-                    </div>
-                  )}
+                  <Button variant="ghost" size="sm">
+                    View Details
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
       ) : (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Search className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No samples found</h3>
-            <p className="text-muted-foreground mb-4 text-center">
-              {searchQuery || statusFilter !== 'all' 
-                ? 'Try adjusting your search or filter criteria' 
-                : 'You haven\'t submitted any samples yet'}
-            </p>
-            {!searchQuery && statusFilter === 'all' && (
-              <Button onClick={() => router.push('/dashboard/upload')}>
-                Upload Your First Sample
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+        <div className="text-center py-12">
+          <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
+          <h3 className="mt-4 text-lg font-medium">No samples found</h3>
+          <p className="mt-1 text-muted-foreground">
+            {searchQuery || statusFilter !== 'all' 
+              ? 'Try adjusting your search or filter criteria.' 
+              : 'Get started by submitting your first herb sample.'}
+          </p>
+          <Button 
+            className="mt-4" 
+            onClick={() => router.push('/dashboard/submit')}
+          >
+            Submit Sample
+          </Button>
+        </div>
       )}
     </div>
+  );
+}
+
+export default function CollectionsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CollectionsPageContent />
+    </Suspense>
   );
 }

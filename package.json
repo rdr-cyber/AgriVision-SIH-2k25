@@ -4,12 +4,14 @@
     "private": true,
     "scripts": {
         "dev": "next dev --turbopack -p 9002",
+        "dev:clean": "node -e \"const fs=require('fs');const path=require('path');const dir='node_modules/.cache';fs.existsSync(dir)&&fs.rmSync(dir,{recursive:true});console.log('Cleared cache');process.exit(0);\" && next dev --turbopack -p 9002",
         "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
         "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "type-check": "tsc --noEmit"
+        "type-check": "tsc --noEmit",
+        "clean-data": "node -e \"const fs=require('fs');const path=require('path');const dir='.next';fs.existsSync(dir)&&fs.rmSync(dir,{recursive:true});console.log('Cleared build cache');process.exit(0);\""
     },
     "dependencies": {
         "@genkit-ai/googleai": "^1.14.1",

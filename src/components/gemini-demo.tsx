@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { ai } from '@/ai/genkit';
 
 const GeminiDemo = () => {
   const [input, setInput] = useState('');
@@ -16,13 +15,22 @@ const GeminiDemo = () => {
     setResponse('');
 
     try {
-      // This uses the Genkit configuration which automatically picks up the GEMINI_API_KEY from environment variables
-      const result = await ai.generate({
-        prompt: input,
-        model: 'googleai/gemini-2.5-flash',
+      // Use the API route instead of direct Genkit import
+      const res = await fetch('/api/gemini', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt: input }),
       });
       
-      setResponse(result.text);
+      const data = await res.json();
+      
+      if (res.ok) {
+        setResponse(data.text);
+      } else {
+        setResponse('Error: ' + data.error);
+      }
     } catch (error) {
       console.error('Error calling Gemini API:', error);
       setResponse('Error: ' + (error as Error).message);

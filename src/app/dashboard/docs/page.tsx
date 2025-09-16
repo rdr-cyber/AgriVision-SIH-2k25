@@ -11,7 +11,8 @@ import {
   MessageCircle,
   ExternalLink,
   Leaf,
-  LifeBuoy
+  LifeBuoy,
+  Truck
 } from 'lucide-react';
 import Link from 'next/link';
 

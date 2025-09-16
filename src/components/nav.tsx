@@ -182,7 +182,7 @@ const manufacturerItems = [
 const adminItems = [
   {
     title: "Dashboard",
-    href: "/admin",
+    href: "/admin/dashboard",
     icon: Home,
   },
   {
@@ -193,7 +193,7 @@ const adminItems = [
   {
     title: "Blockchain",
     href: "/admin/blockchain",
-    icon: Link,
+    icon: Database,
   },
   {
     title: "System Logs",
@@ -202,12 +202,12 @@ const adminItems = [
   },
   {
     title: "Payment History",
-    href: "/dashboard/payment-history",
+    href: "/admin/payment-history",
     icon: History,
   },
   {
     title: "Send Payment",
-    href: "/dashboard/p2p-payment",
+    href: "/admin/p2p-payment",
     icon: Send,
   },
 ];

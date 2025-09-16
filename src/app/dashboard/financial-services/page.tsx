@@ -9,6 +9,9 @@ import {
   Users,
   CreditCard,
   Activity,
+  CheckCircle,
+  Clock,
+  AlertCircle
 } from 'lucide-react';
 import { 
   Table, 
@@ -26,7 +29,7 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { 
-  RechartsLineChart, 
+  LineChart, 
   BarChart, 
   Bar, 
   XAxis, 

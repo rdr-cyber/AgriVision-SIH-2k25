@@ -28,22 +28,19 @@ import {
 import { mockSamples } from '@/lib/mock-data';
 import { formatDistanceToNow } from 'date-fns';
 import { useState, useEffect } from 'react';
+import { HerbSample } from '@/lib/types';
 
 export default function ReviewPage() {
-  const [
-    pendingReviewSamples,
-    // setPendingReviewSamples
-  ] = useState([]);
-  const [selectedSample, setSelectedSample] = useState(
-    null,
-// ... existing code ...
-  );
+  const [pendingReviewSamples, setPendingReviewSamples] = useState<HerbSample[]>([]);
+  const [selectedSample, setSelectedSample] = useState<HerbSample | null>(null);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
+    // Filter samples that are pending review
+    const pendingSamples = mockSamples.filter(sample => sample.status === 'Pending Review');
+    setPendingReviewSamples(pendingSamples);
   }, []);
-
 
   return (
     <Card>

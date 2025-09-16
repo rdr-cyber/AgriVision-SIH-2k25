@@ -1,224 +1,233 @@
-# Agrivision Platform - User Guide
+# AgriVision - User Guide
 
-This guide explains how to use all the features of the Agrivision platform.
+This guide will help you download, set up, and run the AgriVision project on your local machine using GitHub Desktop and VS Code.
 
-## Getting Started
+## Table of Contents
+1. [Prerequisites](#prerequisites)
+2. [Downloading the Repository](#downloading-the-repository)
+3. [Setting up the Development Environment](#setting-up-the-development-environment)
+4. [Installing Dependencies](#installing-dependencies)
+5. [Environment Configuration](#environment-configuration)
+6. [Running the Application](#running-the-application)
+7. [Troubleshooting](#troubleshooting)
 
-1. **Registration**: Create an account with your role (Farmer, Consumer, QC Agent, Manufacturer, or Admin)
-2. **Login**: Use your credentials to access the platform
-3. **Dashboard**: Each role has a customized dashboard with relevant features
+## Prerequisites
 
-## Role-Based Features
+Before you begin, ensure you have the following installed on your system:
 
-### Farmers
+1. **Node.js** (version 18 or higher)
+   - Download from: https://nodejs.org/
+   - This will also install npm (Node Package Manager)
 
-#### Core Features:
-- **Upload Sample**: Submit herb samples for quality analysis
-- **My Collections**: View all your submitted samples
-- **Earnings**: Track your income from approved samples
+2. **GitHub Desktop**
+   - Download from: https://desktop.github.com/
 
-#### Advanced Features:
-- **Rewards Program** (`/dashboard/rewards`): Earn points and claim rewards
-- **Team Chat** (`/dashboard/chat`): Communicate with other platform users
-- **Knowledge Base** (`/dashboard/knowledge`): Learn about herb cultivation
-- **Community Forum** (`/dashboard/forum`): Participate in discussions
-- **Sustainability Impact** (`/dashboard/impact`): View environmental benefits
+3. **Visual Studio Code**
+   - Download from: https://code.visualstudio.com/
 
-### Consumers
+4. **Git** (usually installed with GitHub Desktop)
+   - Verify installation by opening Command Prompt and typing: `git --version`
 
-#### Core Features:
-- **Marketplace** (`/dashboard/marketplace`): Browse and purchase verified herbal products
-- **Search Products** (`/dashboard/search`): Find specific products
-- **Shopping Cart** (`/dashboard/cart`): Manage your purchases
-- **My Purchases** (`/dashboard/purchases`): View order history
-- **Track Batch** (`/dashboard/tracking`): Verify product authenticity
+## Downloading the Repository
 
-#### Advanced Features:
-- **Community Forum** (`/dashboard/forum`): Engage with the community
-- **Sustainability Impact** (`/dashboard/impact`): Learn about environmental benefits
-- **Documentation** (`/dashboard/docs`): Access user guides
+### Using GitHub Desktop:
 
-### Quality Control (QC) Agents
+1. Open GitHub Desktop
+2. Click on "File" → "Clone Repository" or press `Ctrl+Shift+O`
+3. Select the "URL" tab
+4. Enter the repository URL in the "Repository URL" field
+5. Choose the local path where you want to clone the repository
+6. Click "Clone"
 
-#### Core Features:
-- **QC Dashboard** (`/dashboard/qc-dashboard`): Review pending samples
-- **Collections** (`/qc/collections`): View all samples
-- **Appeals** (`/qc/appeals`): Handle sample appeals
+### Alternative Method (Using Git in VS Code):
 
-#### Advanced Features:
-- **Advanced Reports** (`/dashboard/reports`): Analyze quality metrics
-- **Team Chat** (`/dashboard/chat`): Communicate with team members
-- **Community Forum** (`/dashboard/forum`): Participate in quality discussions
-- **Documentation** (`/dashboard/docs`): Access QC guidelines
+1. Open VS Code
+2. Press `Ctrl+Shift+P` to open the command palette
+3. Type "Git: Clone" and select it
+4. Enter the repository URL when prompted
+5. Choose the destination folder
+6. Click "Open" when cloning is complete
 
-### Manufacturers
+## Setting up the Development Environment
 
-#### Core Features:
-- **Batch Management** (`/dashboard/batches`): Create and manage batches
-- **Approved Collections** (`/manufacturer/collections`): View approved samples
-- **Analytics** (`/dashboard/analytics`): Monitor production metrics
+### Opening the Project in VS Code:
 
-#### Advanced Features:
-- **Team Chat** (`/dashboard/chat`): Communicate with suppliers
-- **Documentation** (`/dashboard/docs`): Access manufacturing guidelines
-- **Community Forum** (`/dashboard/forum`): Engage with industry peers
-- **Sustainability Impact** (`/dashboard/impact`): Track environmental benefits
+1. Open VS Code
+2. Click "File" → "Open Folder"
+3. Navigate to the cloned repository folder
+4. Select the folder and click "Select Folder"
 
-### Administrators
+### Installing Recommended Extensions:
 
-#### Core Features:
-- **User Management** (`/admin/users`): Manage platform users
-- **Collections** (`/admin/collections`): View all samples
-- **QC Review** (`/admin/review`): Oversee quality control
-- **Batch Management** (`/admin/batches`): Monitor all batches
-- **System Analytics** (`/admin/analytics`): Platform-wide metrics
+VS Code may suggest installing recommended extensions. If prompted, click "Install All" or install these manually:
+- ES7+ React/Redux/React-Native snippets
+- Prettier - Code formatter
+- TypeScript Importer
+- Auto Rename Tag
 
-#### Advanced Features:
-- **Documentation** (`/dashboard/docs`): Access admin guidelines
-- **Community Forum** (`/dashboard/forum`): Moderate discussions
-- **Sustainability Impact** (`/dashboard/impact`): View platform-wide impact
+## Installing Dependencies
 
-## Key Workflows
+1. Open the terminal in VS Code:
+   - Press `Ctrl+`` ` (backtick) or
+   - Click "Terminal" → "New Terminal" in the menu
 
-### Sample Submission (Farmer)
-1. Navigate to "Upload Sample"
-2. Capture/upload herb image
-3. Add location and notes
-4. Submit for QC review
-5. Track status in "My Collections"
+2. Run the following command to install all dependencies:
+   ```bash
+   npm install
+   ```
 
-### Quality Review (QC Agent)
-1. Go to "QC Dashboard"
-2. Review pending samples
-3. Approve or reject with feedback
-4. Handle appeals as needed
+3. Wait for the installation to complete. This may take a few minutes.
 
-### Batch Creation (Manufacturer)
-1. Visit "Batch Management"
-2. Create new batch
-3. Select approved samples
-4. Generate batch with blockchain anchoring
-5. Track batch status
+## Environment Configuration
 
-### Product Purchase (Consumer)
-1. Browse "Marketplace" or use "Search"
-2. Add products to "Shopping Cart"
-3. Proceed to "Checkout"
-4. Complete payment
-5. Track order in "My Purchases"
+### Setting up Environment Variables:
 
-## Communication Tools
+1. In the root of the project, create a file named `.env`
+2. Add the following content to the file:
+   ```
+   GEMINI_API_KEY=your_actual_gemini_api_key_here
+   ```
+3. Replace `your_actual_gemini_api_key_here` with your actual Google Gemini API key
+   - If you don't have one, you can get it from: https://aistudio.google.com/
 
-### Team Chat
-- Real-time messaging between platform users
-- Accessible to all roles
-- Organized by conversation threads
+### Note on API Key:
+- The application will still run without a valid API key, but AI features will be limited
+- For full functionality, obtain and use a valid Gemini API key
 
-### Community Forum
-- Category-based discussions
-- Post questions, ideas, and feedback
-- Vote on posts and replies
-- Earn reputation through participation
+## Running the Application
 
-## Analytics & Reporting
+### Development Server:
 
-### Dashboard Analytics
-- Real-time metrics for each role
-- Performance tracking
-- Status summaries
+1. In the VS Code terminal, run:
+   ```bash
+   npm run dev
+   ```
 
-### Advanced Reports
-- Detailed data visualizations
-- Exportable reports
-- Time-based filtering
-- Quality score distributions
+2. The application will start on port 9002
+   - Open your browser and navigate to: http://localhost:9002
 
-## Knowledge Resources
+### Building for Production:
 
-### Herb Knowledge Base
-- Comprehensive herb species database
-- Growing and harvesting information
-- Quality indicators and best practices
+If you want to create a production build:
+```bash
+npm run build
+```
 
-### Documentation Center
-- User guides and tutorials
-- Video walkthroughs
-- Downloadable resources
-- Role-specific documentation
+To start the production server:
+```bash
+npm run start
+```
 
-## Incentive Programs
+## Application Features
 
-### Farmer Rewards
-- Points for quality submissions
-- Tiered membership levels
-- Badge achievements
-- Claimable rewards (cashback, equipment, training)
+### User Roles:
+The application supports 5 user roles:
+1. **Consumer** - Purchase herbal products
+2. **Farmer** - Upload herb samples for analysis
+3. **QC Agent** - Review and verify herb samples
+4. **Manufacturer** - Create batches from verified samples
+5. **Admin** - Manage users and system analytics
 
-## Sustainability Tracking
+### Key Features:
+- AI-powered herb species identification
+- Blockchain-based traceability
+- Peer-to-peer payment system
+- Role-based dashboards
+- Real-time chat support
+- QR code verification system
 
-### Impact Dashboard
-- Environmental metrics tracking
-- Social impact reporting
-- Featured sustainable farms
-- Certification tracking
+### Default User Accounts:
+After running the application, you can log in with these default accounts:
 
-## Technical Information
+1. **Admin User**:
+   - Email: admin@agrivision.co
+   - Password: password123
+   - Role: Admin
 
-### Security
-- Role-based access control
-- Secure authentication
-- Protected routes
-- Environment-based API key management
+2. **Manufacturer**:
+   - Email: contact@medileaf.co
+   - Password: password123
+   - Role: Manufacturer
 
-### Performance
-- Optimized data loading
-- Efficient filtering and sorting
-- Responsive design for all devices
-- Skeleton loading states
+3. **QC Agent**:
+   - Email: dave@qlabs.co
+   - Password: password123
+   - Role: QC
+
+4. **Farmer**:
+   - Email: alice@farm.co
+   - Password: password123
+   - Role: Farmer
+
+5. **Consumer**:
+   - Email: carol@consumer.co
+   - Password: password123
+   - Role: Consumer
 
 ## Troubleshooting
 
-### Common Issues:
-1. **Login Problems**: Ensure correct credentials and role selection
-2. **Upload Failures**: Check image format and size requirements
-3. **Chat Not Loading**: Refresh page or clear browser cache
-4. **Report Generation**: Ensure sufficient data exists for selected time period
+### Common Issues and Solutions:
 
-### Support:
-- Contact support through the platform
-- Check documentation for role-specific guidance
-- Participate in community forum for peer assistance
+1. **Port 9002 already in use**:
+   - Solution: Close other applications using port 9002 or change the port in the next.config.js file
 
-## Best Practices
+2. **TypeScript errors**:
+   - Solution: Run `npm run build` to check for compilation errors and fix them
 
-### For Farmers:
-- Submit high-quality images with good lighting
-- Provide detailed notes about growing conditions
-- Engage with the knowledge base for cultivation tips
-- Participate in the rewards program for additional benefits
+3. **Missing dependencies**:
+   - Solution: Run `npm install` again to ensure all dependencies are installed
 
-### For Consumers:
-- Verify product authenticity through batch tracking
-- Read product descriptions and certifications
-- Participate in the community forum for product recommendations
-- Provide feedback on purchased products
+4. **Font or styling issues**:
+   - Solution: Ensure you have an internet connection as Google Fonts are loaded from CDN
 
-### For QC Agents:
-- Review samples promptly for efficient processing
-- Provide detailed feedback for rejected samples
-- Use the analytics dashboard to identify quality trends
-- Engage with farmers to improve overall quality
+5. **LocalStorage data conflicts**:
+   - Solution: Use the "Clear All User Data" button on the homepage or user menu to reset user data
 
-### For Manufacturers:
-- Create batches efficiently to optimize processing
-- Use analytics to monitor production metrics
-- Communicate with suppliers through team chat
-- Track sustainability impact to improve practices
+### Clearing User Data:
 
-### For Administrators:
-- Monitor platform activity through analytics
-- Ensure quality standards are maintained
-- Moderate community discussions
-- Track platform-wide sustainability impact
+If you encounter issues with user accounts or want to start fresh:
+1. Visit http://localhost:9002
+2. Click the "Clear All User Data" button in the header
+   OR
+3. When logged in, click your profile icon and select "Clear All User Data"
 
-This comprehensive guide should help you make the most of all the features available in the Agrivision platform. For additional assistance, please refer to the documentation center or contact support.
+### Checking for Updates:
+
+To pull the latest changes from the repository:
+1. Open GitHub Desktop
+2. Select your repository
+3. Click "Fetch origin"
+4. If updates are available, click "Pull origin"
+
+## Development Notes
+
+### Project Structure:
+- `src/app/` - Next.js app router pages
+- `src/components/` - Reusable UI components
+- `src/lib/` - Utility functions and types
+- `src/context/` - React context providers
+- `src/hooks/` - Custom React hooks
+
+### Technology Stack:
+- Next.js 15 with App Router
+- React 18
+- TypeScript
+- Tailwind CSS
+- Genkit AI with Google Gemini
+- Lucide React Icons
+
+### Code Quality:
+- The project follows TypeScript best practices
+- Components are organized by feature
+- Context API is used for state management
+- Responsive design with Tailwind CSS
+
+## Support
+
+For issues not covered in this guide:
+1. Check the browser console for error messages (`Ctrl+Shift+I` in most browsers)
+2. Check the VS Code terminal for build errors
+3. Ensure all prerequisites are properly installed
+4. Verify environment variables are correctly set
+
+Developed by Team 404 Not Found for Smart India Hackathon 2025

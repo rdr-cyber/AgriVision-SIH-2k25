@@ -55,6 +55,7 @@ const newPasswordSchema = z.object({
 
 type ResetPasswordValues = z.infer<typeof resetPasswordSchema>;
 type FormValues = z.infer<typeof formSchema>;
+type NewPasswordValues = z.infer<typeof newPasswordSchema>;
 type ResetPayload = { password: string; token: string };
 type ResetResponse = { ok: boolean; message?: string };
 

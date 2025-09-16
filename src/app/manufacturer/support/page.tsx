@@ -22,7 +22,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { MentionInput } from '@/components/mention-input';
+import MentionInput from '@/components/mention-input';
 import { ChatMessage } from '@/components/chat-message';
 import { useToast } from '@/hooks/use-toast';
 import { NotificationContext } from '@/context/notification-context';

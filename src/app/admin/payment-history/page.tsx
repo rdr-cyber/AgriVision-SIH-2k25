@@ -34,9 +34,6 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { AuthManager } from '@/lib/auth';
-import { Transaction as LibTransaction } from "@/lib/types";
-import { P2PTransactionService } from '@/lib/p2p-transaction-service';
 
 // Define types for transactions
 type BaseTransaction = {
@@ -58,11 +55,6 @@ type P2PTransaction = BaseTransaction & {
 };
 
 type Transaction = RegularTransaction | P2PTransaction;
-
-type ApiResponse<T> = {
-  data: T;
-  error?: string;
-};
 
 // Mock regular transactions
 const mockPaymentHistory: RegularTransaction[] = [
@@ -126,35 +118,56 @@ const mockP2PTransactions: P2PTransaction[] = [
     fromRole: 'admin',
     toRole: 'manufacturer'
   },
+  {
+    id: 'P2P-003',
+    date: '2025-09-05',
+    amount: 15000,
+    method: 'wallet',
+    status: 'Completed',
+    description: 'Quality control payment',
+    fromRole: 'admin',
+    toRole: 'qc'
+  },
+  {
+    id: 'P2P-004',
+    date: '2025-09-01',
+    amount: 30000,
+    method: 'upi',
+    status: 'Completed',
+    description: 'Farmer subsidy',
+    fromRole: 'admin',
+    toRole: 'farmer'
+  },
 ];
 
 export default function PaymentHistoryPage() {
   const [filter, setFilter] = useState('all');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [filteredTransactions, setFilteredTransactions] = useState<
-    Transaction[]
-  >([]);
+  const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
   const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchTransactions = async () => {
-      // For now, we'll use mock data since we don't have a real user context
-      const allTransactions = [...mockPaymentHistory, ...mockP2PTransactions];
-      setTransactions(allTransactions);
-      setFilteredTransactions(allTransactions);
-    };
+    // Combine mock transactions
+    const allTransactions = [...mockPaymentHistory, ...mockP2PTransactions];
+    setTransactions(allTransactions);
+    setFilteredTransactions(allTransactions);
+  }, []);
 
-    fetchTransactions();
-  }, [filter]);
-
-  const handleFilterChange = (
-    filterType: "status" | "type",
-    value: string,
-  ) => {
+  useEffect(() => {
     let filtered = transactions;
-    // In a real app, you would apply the filter logic here
+    
+    if (filter === 'card') {
+      filtered = transactions.filter(txn => txn.method === 'card');
+    } else if (filter === 'upi') {
+      filtered = transactions.filter(txn => txn.method === 'upi');
+    } else if (filter === 'wallet') {
+      filtered = transactions.filter(txn => txn.method === 'wallet');
+    } else if (filter === 'p2p') {
+      filtered = transactions.filter(txn => 'fromRole' in txn);
+    }
+    
     setFilteredTransactions(filtered);
-  };
+  }, [filter, transactions]);
 
   const getMethodIcon = (method: string) => {
     switch (method) {
@@ -200,11 +213,11 @@ export default function PaymentHistoryPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold">Payment History</h1>
         <p className="text-muted-foreground">
-          View your transaction history across all payment methods
+          View all transaction history across the AgriVision platform
         </p>
       </div>
 
@@ -214,7 +227,7 @@ export default function PaymentHistoryPage() {
             <div>
               <CardTitle>Transaction History</CardTitle>
               <CardDescription>
-                All your payment transactions
+                All payment transactions across the platform
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
@@ -298,7 +311,7 @@ export default function PaymentHistoryPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{filteredTransactions.length}</div>
-            <p className="text-xs text-muted-foreground">+12% from last month</p>
+            <p className="text-xs text-muted-foreground">Across the platform</p>
           </CardContent>
         </Card>
         <Card>

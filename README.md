@@ -36,6 +36,9 @@ A comprehensive platform for tracking and verifying the authenticity of herbal p
 
 ## Getting Started
 
+For detailed instructions on how to download, set up, and run the application, please refer to our [User Guide](USER_GUIDE.md).
+
+### Quick Start:
 1. Clone the repository
 2. Install dependencies: `npm install`
 3. Create a `.env` file with your Gemini API key:

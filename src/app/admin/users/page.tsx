@@ -1,4 +1,3 @@
-
 'use client';
 import { MoreHorizontal, UserPlus, Check, X, UserCog, Loader2 } from 'lucide-react';
 import { AuthManager } from '@/lib/auth';
@@ -57,7 +56,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { useState, useEffect, useMemo, useTransition } from 'react';
+import { useState, useEffect, useMemo, useTransition, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useSearchParams } from 'next/navigation';
@@ -181,15 +180,15 @@ const initializeUsers = (): User[] => {
     return defaultUsers;
 };
 
-
-export default function AdminUsersPage() {
+// Wrapper component to handle search params safely
+function AdminUsersContent() {
   const [users, setUsers] = useState<User[]>([]);
   const [isClient, setIsClient] = useState(false);
   const [isAddUserOpen, setAddUserOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const searchParams = useSearchParams();
-  const searchQuery = searchParams.get('q');
+  const searchQuery = searchParams?.get('q') || '';
 
   useEffect(() => {
     setUsers(initializeUsers());
@@ -384,84 +383,82 @@ export default function AdminUsersPage() {
 
         <DialogContent>
             <DialogHeader>
-            <DialogTitle>Add New User</DialogTitle>
-            <DialogDescription>
-                Create a new user account and assign them a role. They will receive an invitation to set their password.
-            </DialogDescription>
+                <DialogTitle>Add New User</DialogTitle>
+                <DialogDescription>
+                    Create a new user account. The user will receive an email with login instructions.
+                </DialogDescription>
             </DialogHeader>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleAddUser)} className="space-y-4 py-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <FormField
+                <form onSubmit={form.handleSubmit(handleAddUser)} className="space-y-4">
+                    <FormField
                         control={form.control}
                         name="firstName"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>First Name</FormLabel>
-                            <FormControl>
-                                <Input placeholder="John" {...field} />
-                            </FormControl>
-                            <FormMessage />
+                                <FormLabel>First Name</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="John" {...field} />
+                                </FormControl>
+                                <FormMessage />
                             </FormItem>
                         )}
-                        />
-                        <FormField
+                    />
+                    <FormField
                         control={form.control}
                         name="lastName"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Last Name</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Doe" {...field} />
-                            </FormControl>
-                            <FormMessage />
+                                <FormLabel>Last Name</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Doe" {...field} />
+                                </FormControl>
+                                <FormMessage />
                             </FormItem>
                         )}
-                        />
-                    </div>
+                    />
                     <FormField
                         control={form.control}
                         name="email"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                                <Input placeholder="name@example.com" {...field} />
-                            </FormControl>
-                            <FormMessage />
+                                <FormLabel>Email</FormLabel>
+                                <FormControl>
+                                    <Input type="email" placeholder="john.doe@example.com" {...field} />
+                                </FormControl>
+                                <FormMessage />
                             </FormItem>
                         )}
-                        />
+                    />
                     <FormField
                         control={form.control}
                         name="role"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Role</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select a role" />
-                                </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    <SelectItem value="consumer">Consumer</SelectItem>
-                                    <SelectItem value="farmer">Farmer</SelectItem>
-                                    <SelectItem value="qc">QC Agent</SelectItem>
-                                    <SelectItem value="manufacturer">Manufacturer</SelectItem>
-                                    <SelectItem value="admin">Admin</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
+                                <FormLabel>Role</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a role" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="consumer">Consumer</SelectItem>
+                                        <SelectItem value="farmer">Farmer / Collector</SelectItem>
+                                        <SelectItem value="qc">QC Agent</SelectItem>
+                                        <SelectItem value="manufacturer">Manufacturer / Aggregator</SelectItem>
+                                        <SelectItem value="admin">Admin</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
                             </FormItem>
                         )}
-                        />
+                    />
                     <DialogFooter>
                         <DialogClose asChild>
                             <Button type="button" variant="outline">Cancel</Button>
                         </DialogClose>
                         <Button type="submit" disabled={isPending}>
-                            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                             Create User
                         </Button>
                     </DialogFooter>
@@ -469,5 +466,13 @@ export default function AdminUsersPage() {
             </Form>
         </DialogContent>
     </Dialog>
+  );
+}
+
+export default function AdminUsersPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AdminUsersContent />
+    </Suspense>
   );
 }
